@@ -15,7 +15,7 @@
 }
 </style>
 <html lang="en">
-    <script src="harmony.js"></script>
+    <script src="./js/harmony.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -159,10 +159,10 @@
 
 
 
-<script src="methods.js"></script>
-<script src="testing.js"></script>
+<script src="./js/methods.js"></script>
+<script src="./js/testing.js"></script>
 
-<script src="tone.js"></script>
+<script src="./js/tone.js"></script>
 
 
 
@@ -217,7 +217,7 @@ synth.set({
 
 //---------------------------------------------------SONG PLAYER----------------------------------------
 
-var track = "harryFalling.mp3"
+var track = "./songs/harryFalling.mp3"
 var songPlayer = new Tone.Player(track)
 // console.log(songPlayer)
 
@@ -261,7 +261,7 @@ displaySeek(dur,'seekEnd')
 function loadTrack(){
     var trackName = document.getElementById('trackName')
     console.log('loaded',trackName.value)
-    songPlayer.load(trackName.value,function(){
+    songPlayer.load('./songs/'+trackName.value,function(){
 
         options = trackName.getElementsByTagName('option');
 
