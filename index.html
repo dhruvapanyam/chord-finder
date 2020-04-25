@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<style>
+#keyboard-wrapper{
+    width: 100%;
+    height: 30%;
+}
+.column {
+  float: left;
+  width: 5%;
+  padding: 10px;
+  height: 300px; /* Should be removed. Only for demonstration */
+  border-color: black;
+  border-style:solid;
+  text-align: center;
+}
+</style>
+<html lang="en">
+    <script src="harmony.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div class="row" id="keyboard-wrapper">
+        <div class="row"><button onclick="toggleKeyboard()"><h2>C Scale Keyboard lol</h2></button></div>
+
+        <div class="row" id="keyboard" style="display: none">
+            <div class="column" id="C3" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="D3" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="E3" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="F3" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="G3" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="A3" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="B3" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="C4" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="D4" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="E4" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="F4" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="G4" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="A4" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="B4" style="background-color:#ccc;">
+            </div>
+            <div class="column" id="C5" style="background-color:#ccc;">                 
+            </div>
+
+        </div>
+        
+        
+    </div>
+    
+    <div class="row" style="padding-top: 30px;" id="audioWrapper">
+        <!-- <div class="row"><input type="checkbox"  oninput="toggleOutput(this.checked)"></div> -->
+        
+        <div class="row">
+            <select id="trackName">
+                <option value="harryFalling.mp3">Harry Styles - Falling</option>
+                <option value="perfect.mp3">Ed Sheeran - Perfect</option>
+                <option value="allofme.mp3">John Legend - All Of Me</option>
+                <option value="adele.mp3">Adele - Someone Like You</option>
+                <option value="apocalypse.mp3">Cigarettes after Sex - Apocalypse</option>
+                <option value="stayFull.mp3">Rihanna - Stay</option>
+                <option value="stay.mp3">Rihanna - Stay (Kar)</option>
+                <option value="realFriends.mp3">Camila Cabello - Real Friends</option>
+                <option value="kodaline.m4a">Kodaline - All I Want</option>
+                
+            </select>
+            <input type="button" value="Load" onclick="loadTrack()">
+        </div>
+
+
+        <div class="row">
+            <div style="display:inline-block; margin: 1rem;">
+                <audio id="audioFile" controls></audio>
+            </div>
+                
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b>VOLUME: </b>
+                        <span style="float: right;" id='volume'>1.0 dB</span>
+                        </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 10%;" type="range" min=0 max=6 value=1 step=0.001 oninput="outputGain(this.value)">
+                        <!-- <span id='seekEnd'>-:-- </span> -->
+                    </p>
+                </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <p style="font-size: 50px;" id="loadedTrack"></p>
+                </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> SEEK: </b>
+                        <span style="float: right;" id='seek'>0:00 </span>
+                        </div>
+                        &nbsp;&nbsp;
+                        <input id="seekBar" style="width: 70%; " type="range" min=0 max=120 value=0 oninput="seekTime(this.value)">
+                        <span id='seekEnd'>-:-- </span>
+                    </p>
+                </div>
+        </div>
+        <div class="row"  style="padding-top: 30px;"><h1>Audio Effects</h1></div>   
+        <div class="row">
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> FILTER UP: </b>
+                        <span style="float: right;" id='lowpass'>0 Hz</span>
+                    </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 70%; " type="range" min=0 max=10000 value=0 oninput="highFilterTrack(this.value)">
+                        
+                    </p>
+                </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> FILTER DOWN: </b>
+                        <span style="float: right;" id='highpass'>10000 Hz </span>
+                    </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 70%;" type="range" min=0 max=10000 value=10000 oninput="lowFilterTrack(this.value)">
+                        <!-- <span id='seekEnd'>-:-- </span> -->
+                    </p>
+                </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> GAIN: </b>
+                        <span style="float: right;" id='gain'>1.0 dB</span>
+                    </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 70%;" type="range" min=0 max=6 value=1 step=0.001 oninput="trackGain(this.value)">
+                        <!-- <span id='seekEnd'>-:-- </span> -->
+                    </p>
+                </div>
+                
+            </div>
+            <div class="row">
+                <div style="display: inline-block;"><h3>CHORD: <p id="detectedNote" style="font-size: 100px;"></p></h3></div>
+                
+            </div>
+            <div class="row"><p id="detectedScale" style="font-size: 40px; display: none;"></h3></div>
+            <div class="row"><h3><p id="temp2" style="font-size: 40px;"></p></h3></div>
+
+    </div>
+</body>
+</html>
+
+
+
+<script src="methods.js"></script>
+<script src="testing.js"></script>
+
+<script src="tone.js"></script>
+
+
+
+<script>
+
+    
+//---------------------------------------------------APP MODE------------------------------------------------
+
+const out = ['note','chord']
+let output=out[1]
+
+function toggleOutput(val){
+    if(val==false)
+        output = 'note'
+    else
+        output = 'chord'
+}
+
+//---------------------------------------------------RECORDER------------------------------------------------
+
+const audioFile = document.querySelector('audio');
+const actx = Tone.context;
+const dest = actx.createMediaStreamDestination()
+const recorder = new MediaRecorder(dest.stream)
+
+var chunks = []
+
+// recorder.ondataavailable = evt => chunks.push(evt.data)
+// recorder.onstop = evt => {
+//     let blob = new Blob(chunks, {type: 'audio/ogg; codecs=opus'})
+//     audioFile.src = URL.createObjectURL(blob)
+// }
+
+//---------------------------------------------------SYNTH-PIANO------------------------------------------------
+
+var synth = new Tone.PolySynth(6, Tone.Synth, {
+  oscillator : {
+		type : "triangle"
+    },
+})
+synthALX = new Tone.Analyser("fft",16384).toMaster()
+synth.connect(synthALX)
+synth.volume.value = -7
+synth.set({
+    "envelope":{
+        "release":1
+    },
+    "filter":{
+        "type":"highpass"
+    }
+})
+
+//---------------------------------------------------SONG PLAYER----------------------------------------
+
+var track = "harryFalling.mp3"
+var songPlayer = new Tone.Player(track)
+// console.log(songPlayer)
+
+var filterLowerBound = new Tone.Filter()
+filterLowerBound.type="highpass"
+filterLowerBound.frequency.value = 0
+
+var filterUpperBound = new Tone.Filter()
+filterUpperBound.type="lowpass"
+filterUpperBound.frequency.value = 10000
+
+songPlayer.connect(filterLowerBound)
+songPlayer.connect(filterUpperBound)
+
+songPlayerGain = new Tone.Gain()
+songPlayerALX = new Tone.Analyser("fft",16384)
+
+filterLowerBound.connect(songPlayerGain)
+filterUpperBound.connect(songPlayerGain)
+
+songPlayerGain.connect(songPlayerALX)                            // CHANGED FOR MIC
+songPlayerVolume = new Tone.Gain().toMaster()
+songPlayerALX.connect(songPlayerVolume)
+
+songPlayerVolume.connect(dest)                                  // Record to audio file
+
+
+// console.log(filterLowerBound)
+// console.log(songPlayerGain)
+
+songPlayer.sync()
+songPlayer.start(0)
+
+
+let dur;
+dur = dur = songPlayer.buffer.duration
+document.getElementById('seekBar').max=dur
+document.getElementById('seekBar').value=0
+displaySeek(dur,'seekEnd')
+
+function loadTrack(){
+    var trackName = document.getElementById('trackName')
+    console.log('loaded',trackName.value)
+    songPlayer.load(trackName.value,function(){
+
+        options = trackName.getElementsByTagName('option');
+
+        for(var i=0;i<options.length;i++){
+            // console.log(options[i])
+            if(options[i].value==trackName.value)
+                document.getElementById('loadedTrack').innerHTML = options[i].innerHTML
+        }
+
+        dur = songPlayer.buffer.duration
+        // console.log(dur)
+        document.getElementById('seekBar').max=dur
+        document.getElementById('seekBar').value=0
+        displaySeek(dur,'seekEnd')
+    })
+    Tone.Transport.stop()
+}
+
+function highFilterTrack(val){
+    filterLowerBound.frequency.value=val
+    document.getElementById('lowpass').innerHTML=' '+String(val)+' Hz'
+}
+function lowFilterTrack(val){
+    filterUpperBound.frequency.value=val
+    document.getElementById('highpass').innerHTML=' '+String(val)+' Hz'
+}
+
+function trackGain(val){
+    songPlayerGain.gain.value=val
+    document.getElementById('gain').innerHTML=' '+String(val)+' dB'
+}
+
+function outputGain(val){
+    songPlayerVolume.gain.value=val
+    document.getElementById('volume').innerHTML=' '+String(val)+' dB'
+}
+
+
+
+//---------------------------------------------------MIC UP----------------------------------------------
+
+var mic = new Tone.UserMedia();
+var micALX = new Tone.Analyser("fft",16384).toMaster()
+mic.connect(filterLowerBound)
+mic.connect(filterUpperBound)
+
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------CONSTS----------------------------------------------------------------------------------------------
+
+const ACC = 100, AVG = 100
+let COUNT = 0
+
+const notes = {
+    49:'C2',51:'C#2',55:'D2',58:'D#2',61:'E2',65:'F2',69:'F#2',73:'G2',77:'G#2',82:'A2',87:'A#2',92:'B2',
+    97:'C3',103:'C#3',109:'D3',114:'D#3',122:'E3',130:'F3',137:'F#3',146:'G3',154:'G#3',163:'A3',173:'A#3',183:'B3',
+    194:'C4',206:'C#4',218:'D4',231:'D#4',245:'E4',259:'F4',275:'F#4',291:'G4',309:'G#4',327:'A4',346:'A#4',367:'B4',
+    389:'C5',412:'C#5',436:'D5',462:'D#5',490:'E5',519:'F5',550:'F#5',583:'G5',617:'G#5',654:'A5',693:'A#5',734:'B5'
+}
+
+// console.log(notes[179])
+
+
+const scale = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
+const revScale = {'C':0,'C#':1,'D':2,'D#':3,'E':4,'F':5,'F#':6,'G':7,'G#':8,'A':9,'A#':10,'B':11}
+
+const tension = {                   //equals amount of energy released if paired with BASE
+    0:20,           //MAX
+    1:13,
+    2:5,
+    3:16.5,
+    4:18,
+    5:16,
+    6:1,
+    7:19,
+    8:15,
+    9:17.5,
+    10:8,
+    11:8
+}
+
+let prevChord = null
+
+let averages = []
+for(var i=0;i<AVG;i++)  averages[i] = []
+
+let chordRecord = []
+for(var i=0;i<700;i++)  chordRecord[i] = []
+
+
+const majorScale = {1:1,10:1,3:1,6:1}    // NOTES NOT IN A MAJOR SCALE                NO ACCIDENTALS
+
+let brownie = [0,0]
+let lockBrownie = 0
+
+var past = []
+const lim = 150
+
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------TONE.TRANSPORT---------------------------------------------------------------------------
+
+// Tone.Transport.loop=true
+Tone.Transport.setLoopPoints(10,100)
+
+Tone.volume = -10
+Tone.start('+0.2s')
+
+function seekTime(val){
+    Tone.Transport.seconds = val;
+    displaySeek(val)
+}
+
+
+Tone.Transport.scheduleRepeat(function(time){
+    displaySeek(Tone.Transport.seconds)
+    // lockBrownie=0
+    COUNT+=1
+    var fft = songPlayerALX.getValue();
+    
+    repeatApp(fft); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    
+},'0.005')
+
+</script>
