@@ -266,7 +266,7 @@ function checkChordWithKeys(chord,keys){
         flag=0
         for(var i=0;i<chord.notes.length;i++){
             if((chord.notes[i] + 12 - note) % 12 in majorScale){
-                console.log(chord.name,'doesnt fit with',keys[k])
+                // console.log(chord.name,'doesnt fit with',keys[k])
                 // console.log(chord.notes,note)
                 if(k==0)
                     flag=1
@@ -507,13 +507,14 @@ document.addEventListener('keydown',function(event){
     }
     if(event.key==' '){
         if(Tone.Transport.state=='started'){
+            // updateInterval = 10000
             Tone.Transport.pause();
-            recorder.stop()
+            // recorder.stop()
         }
         else{
             Tone.Transport.start();
             chunks = []
-            recorder.start()
+            // recorder.start()
         }
     }
     if(event.key=='\\'){

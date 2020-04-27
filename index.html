@@ -16,6 +16,7 @@
 </style>
 <html lang="en">
     <script src="./js/harmony.js"></script>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,6 +70,8 @@
         <div class="row">
             <select id="trackName">
                 <option value="harryFalling.mp3">Harry Styles - Falling</option>
+                <option value="thatsus.mp3">Anson Seabra - That's Us</option>
+                <option value="wonderful.m4a">Dhruva Panyam - Wonderful World</option>
                 <option value="perfect.mp3">Ed Sheeran - Perfect</option>
                 <option value="allofme.mp3">John Legend - All Of Me</option>
                 <option value="adele.mp3">Adele - Someone Like You</option>
@@ -77,9 +80,30 @@
                 <option value="stay.mp3">Rihanna - Stay (Kar)</option>
                 <option value="realFriends.mp3">Camila Cabello - Real Friends</option>
                 <option value="kodaline.m4a">Kodaline - All I Want</option>
+                <option value="gravity.mp3">John Mayer - Gravity</option>
+                <option value="yours.mp3">Jason Mraz - I'm Yours</option>
+                <option value="noWay.m4a">Fifth Harmony - No Way</option>
+                <option value="perfect.mp3">Ed Sheeran - Perfect</option>
+                <option value="allofme.mp3">John Legend - All Of Me</option>
+                <option value="dpan.mp3">When I Was Your Man</option>
+                <option value="stars.mp3">Stars</option>
+                <option value="run.mp3">Run</option>
+                <option value="adele.mp3">Adele - Someone Like You</option>
+                <option value="apocalypse.mp3">Cigarettes after Sex - Apocalypse</option>
+                <option value="stayFull.mp3">Rihanna - Stay</option>
+                <option value="stay.mp3">Rihanna - Stay (Kar)</option>
+                <option value="harryFalling.mp3">Harry Styles - Falling</option>
+                <option value="falling.mp3">Falling</option>
+                <option value="emajor.mp3">E Major</option>
+                <option value="stay.m4a">Sam Smith - Stay With Me</option>
+                <option value="realFriends.mp3">Camila Cabello - Real Friends</option>
+                <option value="kodaline.m4a">Kodaline - All I Want</option>
+                <option value="voiceNoteC4.wav">Me singing C4</option>
                 
             </select>
             <input type="button" value="Load" onclick="loadTrack()">
+            <input id="enterName">
+            <input type="button" value="Search" onclick="loadTrack(1)">
         </div>
 
 
@@ -146,14 +170,102 @@
                 </div>
                 
             </div>
-            <div class="row">
+            <!-- <div class="row">
                 <div style="display: inline-block;"><h3>CHORD: <p id="detectedNote" style="font-size: 100px;"></p></h3></div>
                 
             </div>
             <div class="row"><p id="detectedScale" style="font-size: 40px; display: none;"></h3></div>
-            <div class="row"><h3><p id="temp2" style="font-size: 40px;"></p></h3></div>
+            <div class="row"><h3><p id="temp2" style="font-size: 40px;"></p></h3></div> -->
 
     </div>
+    <div><p style="font-size: 100px;" id="second"></p></div>
+    <div>
+        <div style="display: inline-block ; width: 100%;">
+            <div style="width: 8%; display: inline-block;">
+            <p><b>BASS LIMIT: </b>
+                <span style="float: right;" id='threshold'>-50</span>
+                </div>
+                &nbsp;&nbsp;
+                <input style="width: 20%;" id="bassLimit" type="range" min=-95 max=-5 value=-50 step=1 oninput="changeThresholdBass(this.value)">
+                <!-- <span id='seekEnd'>-:-- </span> -->
+            &nbsp;&nbsp;
+            <div style="width: 8%; display: inline-block;">
+                <b>MID LIMIT: </b>
+                    <span style="float: right;" id='threshold1'>-40</span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 20%;" id="midLimit" type="range" min=-95 max=-5 value=-40 step=1 oninput="changeThresholdMid(this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+            &nbsp;&nbsp;
+            <div style="width: 8%; display: inline-block;">
+                <b>HIGH LIMIT: </b>
+                    <span style="float: right;" id='threshold2'>-30</span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 20%;" id="highLimit" type="range" min=-95 max=-5 value=-30 step=1 oninput="changeThresholdHigh(this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                </p>
+        </div>
+        <div style="display: inline-block ; width: 100%;">
+            <div style="width: 8%; display: inline-block;">
+            <p><b>BASS START: </b>
+                <span style="float: right;" id='bassStart'>20</span>
+                </div>
+                &nbsp;&nbsp;
+                <input style="width: 20%;" type="range" min=20 max=150 value=20 step=1 oninput="changeBassStart(this.value)">
+                <!-- <span id='seekEnd'>-:-- </span> -->
+            &nbsp;&nbsp;
+            <div style="width: 8%; display: inline-block;">
+                <p><b>MID START: </b>
+                    <span style="float: right;" id='midStart'>116</span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 20%;" type="range" min=50 max=200 value=116 step=1 oninput="changeMidStart(this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+            &nbsp;&nbsp;
+            <div style="width: 8%; display: inline-block;">
+                <p><b>HIGH START: </b>
+                    <span style="float: right;" id='highStart'>200</span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 20%;" type="range" min=150 max=400 value=200 step=1 oninput="changeHighStart(this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+            
+            </p>
+        </div>
+        <div style="display: inline-block ; width: 100%;">
+            <div style="width: 8%; display: inline-block;">
+            <p><b>BASS END: </b>
+                <span style="float: right;" id='bassEnd'>115</span>
+                </div>
+                &nbsp;&nbsp;
+                <input style="width: 20%;" type="range" min=30 max=150 value=115 step=1 oninput="changeBassEnd(this.value)">
+                <!-- <span id='seekEnd'>-:-- </span> -->
+            &nbsp;&nbsp;
+            <div style="width: 8%; display: inline-block;">
+                <p><b>MID END: </b>
+                    <span style="float: right;" id='midEnd'>190</span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 20%;" type="range" min=100 max=200 value=190 step=1 oninput="changeMidEnd(this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+            &nbsp;&nbsp;
+            <div style="width: 8%; display: inline-block;">
+                <p><b>HIGH END: </b>
+                    <span style="float: right;" id='highEnd'>400</span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 20%;" type="range" min=180 max=400 value=400 step=1 oninput="changeHighEnd(this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+            
+            </p>
+        </div>
+        
+        
+    </div>
+    <div id="chartContainer" style="width: 100%; height: 400px;"></div>
+    
+    
 </body>
 </html>
 
@@ -167,7 +279,6 @@
 
 
 <script>
-
     
 //---------------------------------------------------APP MODE------------------------------------------------
 
@@ -240,7 +351,9 @@ filterUpperBound.connect(songPlayerGain)
 
 songPlayerGain.connect(songPlayerALX)                            // CHANGED FOR MIC
 songPlayerVolume = new Tone.Gain().toMaster()
-songPlayerALX.connect(songPlayerVolume)
+songPlayerVolume.gain.value = 0.8
+filterLowerBound.connect(songPlayerVolume)
+filterUpperBound.connect(songPlayerVolume)
 
 songPlayerVolume.connect(dest)                                  // Record to audio file
 
@@ -258,8 +371,9 @@ document.getElementById('seekBar').max=dur
 document.getElementById('seekBar').value=0
 displaySeek(dur,'seekEnd')
 
-function loadTrack(){
-    var trackName = document.getElementById('trackName')
+function loadTrack(a=0){
+    if(a) trackName = document.getElementById('enterName')
+    else trackName = document.getElementById('trackName')
     console.log('loaded',trackName.value)
     songPlayer.load('./songs/'+trackName.value,function(){
 
@@ -268,7 +382,8 @@ function loadTrack(){
         for(var i=0;i<options.length;i++){
             // console.log(options[i])
             if(options[i].value==trackName.value)
-                document.getElementById('loadedTrack').innerHTML = options[i].innerHTML
+                if(a==0) document.getElementById('loadedTrack').innerHTML = options[i].innerHTML
+                else document.getElementById('loadedTrack').innerHTML = trackName
         }
 
         dur = songPlayer.buffer.duration
@@ -318,6 +433,7 @@ const ACC = 100, AVG = 100
 let COUNT = 0
 
 const notes = {
+    24:'C1',26:'C#1',27:'D1',29:'D#1',31:'E1',32:'F1',34:'F#1',36:'G1',39:'G#1',41:'A1',43:'A#1',46:'B1',
     49:'C2',51:'C#2',55:'D2',58:'D#2',61:'E2',65:'F2',69:'F#2',73:'G2',77:'G#2',82:'A2',87:'A#2',92:'B2',
     97:'C3',103:'C#3',109:'D3',114:'D#3',122:'E3',130:'F3',137:'F#3',146:'G3',154:'G#3',163:'A3',173:'A#3',183:'B3',
     194:'C4',206:'C#4',218:'D4',231:'D#4',245:'E4',259:'F4',275:'F#4',291:'G4',309:'G#4',327:'A4',346:'A#4',367:'B4',
@@ -382,11 +498,615 @@ Tone.Transport.scheduleRepeat(function(time){
     displaySeek(Tone.Transport.seconds)
     // lockBrownie=0
     COUNT+=1
-    var fft = songPlayerALX.getValue();
+    // var fft = songPlayerALX.getValue();
     
-    repeatApp(fft); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+    // repeatApp(fft); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     
     
 },'0.005')
+
+
+var dps = []
+
+for(var i=0;i<400;i++){
+    // console.log(i,i in notes)
+    dps.push({x:i,y:-95,label:'.'})
+}
+// dps.push({x:160,y:-95})
+
+// console.log(dps)
+
+var chart = new CanvasJS.Chart("chartContainer",{
+    title :{
+        text: "Live Data"
+    },
+    axisX: {						
+        title: "Axis X Title",
+        stripLines:[
+        {
+            startValue: 20,
+            endValue:115,
+            color:"#e6faff",
+        },
+        {
+            startValue: 116,
+            endValue: 190,
+            color:"#ffd480"
+        },
+        {
+            startValue: 200,
+            endValue:400,
+            color:"#eee"
+        }
+        ]
+    },
+    axisY: {						
+        title: "Units",
+        stripLines:[
+        {
+            value:-50,
+            color:"#ffd480",
+            thickness:3,
+            showOnTop: false
+
+        },
+        {
+            value:-40,
+            color:"#e6faff",
+            thickness:3
+        },
+        {
+            value:-30,
+            color:"black",
+            thickness:1
+        }
+        ]
+    },
+    data: [{
+        type: "line",
+        dataPoints : dps
+    }]
+});
+
+chart.render();
+var updateInterval = 5;
+
+second =document.getElementById('second')
+third =document.getElementById('third')
+fourth =document.getElementById('fourth')
+fifth =document.getElementById('fifth')
+
+var intervals = 1
+var B_THRESHOLD = -50
+var M_THRESHOLD = -40
+var H_THRESHOLD = -30
+
+var bassStart=20
+var midStart=116
+var highStart=200
+
+var bassEnd=115
+var midEnd=190
+var highEnd=400
+
+
+console.log('chart')
+console.log(chart)
+
+function changeThresholdBass(val){
+    // console.log('threshold is',B_THRESHOLD)
+    B_THRESHOLD = parseInt(val)
+    document.getElementById('threshold').innerHTML = B_THRESHOLD
+
+    // console.log(chart.axisY[0].stripLines[0])
+
+    chart.axisY[0].stripLines[0].set('value',Math.floor(B_THRESHOLD))
+
+    // console.log(chart.axisY[0].stripLines[0])
+}
+function changeThresholdMid(val){
+    // console.log('threshold is',B_THRESHOLD)
+    M_THRESHOLD = parseInt(val)
+    document.getElementById('threshold1').innerHTML = M_THRESHOLD
+
+    // console.log(chart.axisY[0].stripLines[0])
+
+    chart.axisY[0].stripLines[1].set('value',Math.floor(M_THRESHOLD))
+
+    // console.log(chart.axisY[0].stripLines[0])
+}
+function changeThresholdHigh(val){
+    // console.log('threshold is',B_THRESHOLD)
+    H_THRESHOLD = parseInt(val)
+    document.getElementById('threshold2').innerHTML = H_THRESHOLD
+
+    // console.log(chart.axisY[0].stripLines[0])
+
+    chart.axisY[0].stripLines[2].set('value',Math.floor(H_THRESHOLD))
+
+    // console.log(chart.axisY[0].stripLines[0])
+}
+
+
+function changeBassStart(val){
+    bassStart = parseInt(val)
+    document.getElementById('bassStart').innerHTML = bassStart
+    for(let p=20;p<bassStart;p++){
+        dps[p]['y'] = -95
+    }
+
+    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
+    chart.axisX[0].stripLines[0].set('startValue',(bassStart))
+}
+function changeMidStart(val){
+    // console.log(val)
+    midStart = Math.max(parseInt(val),bassEnd);
+    document.getElementById('midStart').innerHTML = midStart
+    for(let p=bassEnd;p<midStart;p++){
+        dps[p]['y'] = -95
+    }
+
+    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
+    chart.axisX[0].stripLines[1].set('startValue',(midStart))
+    // console.log(chart.axisX[0].stripLines[1])
+}
+function changeHighStart(val){
+    highStart = Math.max(parseInt(val),midEnd);
+    document.getElementById('highStart').innerHTML = highStart
+    for(let p=midEnd;p<highStart;p++){
+        dps[p]['y'] = -95
+    }
+
+    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
+    chart.axisX[0].stripLines[2].set('startValue',(highStart))
+}
+
+function changeBassEnd(val){
+    bassEnd = Math.min(parseInt(val),midStart);
+    document.getElementById('bassEnd').innerHTML = bassEnd
+    for(let p=bassEnd;p<midStart;p++){
+        dps[p]['y'] = -95
+    }
+
+    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
+    chart.axisX[0].stripLines[0].set('endValue',(bassEnd))
+}
+function changeMidEnd(val){
+    midEnd = Math.min(parseInt(val),highStart);
+    document.getElementById('midEnd').innerHTML = midEnd
+    for(let p=midEnd;p<highStart;p++){
+        dps[p]['y'] = -95
+    }
+
+    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
+    chart.axisX[0].stripLines[1].set('endValue',(midEnd))
+}
+function changeHighEnd(val){
+    highEnd = parseInt(val)
+    document.getElementById('highEnd').innerHTML = highEnd
+    for(let p=highEnd;p<800;p++){
+        dps[p]['y'] = -95
+    }
+
+    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
+    chart.axisX[0].stripLines[2].set('endValue',(highEnd))
+}
+
+let hist = []
+for(var i=0;i<30;i++){
+    hist.push(null)
+}
+
+avgBass = -70
+avgMid = -60
+avgHigh = -40
+
+var alxChart = function(){
+
+    avgBass = (avgBass * intervals + B_THRESHOLD)/(intervals+1)
+    avgMid = (avgMid * intervals + M_THRESHOLD)/(intervals+1)
+    avgHigh = (avgHigh * intervals + H_THRESHOLD)/(intervals+1)
+
+    
+    let topsB = []
+    let topsM = []
+    let topsH = []
+    // console.log(topsB)
+    temp = songPlayerALX.getValue();
+    for(let p=bassStart;p<bassEnd;p++){
+        if(parseInt(p)==dps.length-1) continue
+        // console.log(p)
+        x = dps[p]["x"]
+        if(temp[x]<=-95) continue
+            
+        dps[p]["y"] = temp[x]
+
+        if(temp[x]>B_THRESHOLD && x in notes){
+            octave = notes[x][notes[x].length-1]
+            
+            // topsB[octave].push([notes[x],Math.floor(temp[x])])
+            topsB.push([notes[x],temp[x]])
+            dps[p]["indexLabel"] = notes[x]
+        }
+        else
+            dps[p]["indexLabel"] = ''
+    }
+    for(let p=midStart;p<midEnd;p++){
+        if(parseInt(p)==dps.length-1) continue
+        // console.log(p)
+        x = dps[p]["x"]
+        if(temp[x]<=-95) continue
+            
+        dps[p]["y"] = temp[x]
+
+        if(temp[x]>M_THRESHOLD && x in notes){
+            octave = notes[x][notes[x].length-1]
+            
+            // topsB[octave].push([notes[x],Math.floor(temp[x])])
+            // topsB.push([notes[x],temp[x]])
+            topsM.push([notes[x],temp[x]])
+            dps[p]["indexLabel"] = notes[x]
+        }
+        else
+            dps[p]["indexLabel"] = ''
+    }
+    for(let p=highStart;p<highEnd;p++){
+        if(parseInt(p)==dps.length-1) continue
+        // console.log(p)
+        x = dps[p]["x"]
+        if(temp[x]<=-95) continue
+            
+        dps[p]["y"] = temp[x]
+
+        if(temp[x]>H_THRESHOLD && x in notes){
+            octave = notes[x][notes[x].length-1]
+            
+            // topsB[octave].push([notes[x],Math.floor(temp[x])])
+            // topsB.push([notes[x],temp[x]])
+            topsH.push([notes[x],temp[x]])
+            dps[p]["indexLabel"] = notes[x]
+        }
+        else
+            dps[p]["indexLabel"] = ''
+    }
+
+    if(topsB.length > 3){
+        changeThresholdBass(B_THRESHOLD+1);
+        document.getElementById('bassLimit').value=B_THRESHOLD+1
+    }
+    if(topsB.length == 0 && B_THRESHOLD>-65){
+        changeThresholdBass(B_THRESHOLD-1);
+        document.getElementById('bassLimit').value=B_THRESHOLD-1
+    }
+
+    if(topsM.length > 5){
+        changeThresholdMid(M_THRESHOLD+1);
+        document.getElementById('midLimit').value=M_THRESHOLD+1
+    }
+    if(topsM.length < 3 && M_THRESHOLD>-55){
+        changeThresholdMid(M_THRESHOLD-1);
+        document.getElementById('midLimit').value=M_THRESHOLD-1
+    }
+
+    if(topsH.length > 5){
+        changeThresholdHigh(H_THRESHOLD+1);
+        document.getElementById('highLimit').value=H_THRESHOLD+1
+    }
+    if(topsH.length < 3 && H_THRESHOLD>-45){
+        changeThresholdHigh(H_THRESHOLD-1);
+        document.getElementById('highLimit').value=H_THRESHOLD-1
+    }
+    
+    if(Tone.Transport.state=='started'){
+        intervals++;
+        // res = decluster(topsB)
+        // res = res.map(x=>x[0].substring(0,x[0].length-1))
+        // hist.unshift(res)
+
+        res = decluster(topsB)
+        resM = decluster(topsM)
+        resH = decluster(topsH)
+
+        // str = getVisual(res.map(x=>x[0]))
+        res = res.map(x=>x[0].substring(0,x[0].length-1))
+        resM = resM.map(x=>x[0].substring(0,x[0].length-1))
+        resH = resH.map(x=>x[0].substring(0,x[0].length-1))
+        // if(res.length) console.log(res)
+
+        if(res.length==0 && resM.length==0) {
+            second.innerHTML = ''
+            return
+        }
+
+        // second.innerHTML = ''
+        if(res.length)
+            bass = findTriad(res,resM)
+        else{
+            res=resM
+            bass = findTriad(res)
+        }
+        let chord;
+        if(bass.length==2){
+            if(bass[1]!='/' && bass[1]!='5'){
+                chord = bass[0]+bass[1]
+                if(res.length && bass[0]!=res[0])
+                    chord += '/'+res[0]
+            }
+            else{
+                bass = findTriad(res,resM.concat(resH))
+                if(bass.length==2){
+                    if(bass[1]!='/'){
+                        chord = bass[0]+bass[1]
+                        if(res.length && bass[0]!=res[0])
+                            chord += '/'+res[0]
+                    }
+                }
+                else{
+                    chord = res[0]
+                }
+            }
+        }
+        hist.pop()
+        hist.unshift(chord)
+        
+
+        if(intervals%25==0){
+            if(intervals%50==0){
+                intervals=26
+            }
+
+            score = (3*avgBass)+(2*avgMid)+(avgHigh)
+            score = score/6
+
+            // console.log(score)
+            if(intervals>25){
+                if(score < -40 && songPlayerGain.gain.value <5){
+                    trackGain(songPlayerGain.gain.value + 0.3)
+                }
+                if(score > -30 && songPlayerGain.gain.value >0.3){
+                    trackGain(songPlayerGain.gain.value - 0.3)
+                }
+            }
+
+
+            // console.log(hist)
+            counts = {}
+            for(c of hist){
+                if(c==undefined) continue
+                if(c in counts){
+                    counts[c]++;
+                }
+                else{
+                    counts[c]=1
+                }
+            }
+            console.log(counts)
+
+            if(Object.keys(counts).length==0) return
+
+            MAX = null
+            max2 = null
+            for(var i in counts){
+                if(MAX==null || counts[i]>MAX){
+                    max2=MAX
+                    MAX = i
+                }
+            }
+
+            if(counts[MAX]>5){
+                second.innerHTML = MAX
+            }
+            if(max2 && counts[max2>5]){
+                second.innerHTML += ' or '+max2
+            }
+            
+            // console.log(bass)
+            
+
+
+
+
+        }
+        chart.render()
+    }
+}
+
+setInterval(function(){alxChart()}, updateInterval);
+
+
+function getVisual(tops){
+    // Format of tops: [B2,E3,B3,...]
+    str = ''
+    if(tops.length==0) return str
+
+    str = tops[0]
+    i = 1
+    num = tops[0][tops[0].length-1]
+    prev = revScale[tops[0].substring(0,tops[0].length-1)]
+    while(i<tops.length){
+        cur = revScale[tops[i].substring(0,tops[i].length-1)]
+        len = (12+cur-prev)%12
+        str+=('-'.repeat(len*len))
+        if(num!=tops[i][tops[i].length-1]){
+            str+=' ||| '
+            num = tops[i][tops[i].length-1]
+        }
+        prev = cur
+        str+= tops[i]
+        i+=1
+        
+    }
+    return str
+}
+
+function decluster(tops){
+    //Format = [[C3,-43],...]
+    // console.log('declustering')
+    // console.log(tops)
+    arr = tops.map(x=>{
+        return [x[0].substring(0,x[0].length-1),x[1]]
+    })
+
+    clusters = []
+    i=0
+    low=i;
+    high=i;
+    for(var i=0;i<tops.length;i++){
+        if(i<tops.length-1 && revScale[arr[i+1][0]] == revScale[arr[i][0]] + 1){
+            high++
+            continue
+        }
+
+        clusters.push([low,high])
+        high++
+        low = high
+    }
+
+    // console.log(clusters)
+
+    peaks = []
+
+    for(cluster of clusters){
+        low = cluster[0]
+        high = cluster[1]
+        orient = 'up'
+        for(var i=low;i<=high;i++){
+            if(orient=='up'){
+                if(i==high){
+                    peaks.push(tops[i])
+                    break
+                }
+                if(arr[i+1][1] < arr[i][1]){
+                    peaks.push(tops[i])
+                    orient='down'
+                }
+            }
+            else{
+                if(i<high && arr[i+1][1] > arr[i][1]){
+                    orient='up'
+                }
+            }
+        }
+    }
+    // console.log(peaks)
+    return peaks
+}
+
+// decluster([['C3',30],['C#3',40],['E4',30],['F4',20],['F#4',50]])
+
+
+function findTriad(res,resM=[]){
+    res = res.concat(resM)
+    // format = [G#,B,C#,D#,G#]
+    // console.log('MY BASS IS',res[0])
+
+    tones = res.map(x => {
+        return (12+revScale[x] - revScale[res[0]])%12
+    })
+
+    thirdm=false
+    thirdM=false
+    fifth=false
+    dom7=false
+    maj7=false
+    
+    for(let t of tones){
+        if(t==3){
+            thirdm=true
+        }
+        else if(t==4){
+            thirdM=true
+        }
+        else if(t==7){
+            fifth=true
+        }
+        else if(t==10){
+            dom7=true
+        }
+        else if(t==11){
+            maj7=true
+        }
+    }
+    if(thirdM){
+        if(fifth){
+            if(dom7){
+                return ([res[0],'7'])
+            }
+            if(maj7){
+                return ([res[0],'M7'])
+            }
+
+        }
+        return([res[0],'maj'])
+    }
+    
+    if(thirdm){
+        if(fifth){
+            if(dom7){
+                return ([res[0],'m7'])
+            }
+            if(maj7){
+                return ([res[0],'minM7'])
+            }
+
+        }
+        return([res[0],'min'])
+    }
+    
+    first5 = false
+    if(fifth)
+        first5 = true     
+            
+
+    if(res.length==1 || res[1]==res[0]){
+        if(first5)
+            return([res[0],'5'])
+            
+        return([res[0],'/'])
+    }
+
+    tones = res.map(x => {
+        return (12+revScale[x] - revScale[res[1]])%12
+    })
+
+    thirdm=false
+    thirdM=false
+    fifth=false
+
+    for(let t of tones){
+        if(t==3){
+            thirdm=true
+        }
+        else if(t==4){
+            thirdM=true
+        }
+        else if(t==7){
+            fifth=true
+        }
+    }
+    
+    if(thirdM){
+        return([res[1],'maj'])
+    }
+    else if(thirdm){
+        return([res[1],'min'])
+    }
+    
+    if(fifth && !first5){
+        return([res[1],'5'])
+    }
+
+    if(first5){
+        return([res[0],'5'])
+    }
+
+    return([res[0],'/',res[1]])
+
+
+    
+
+
+}
+
 
 </script>
