@@ -505,7 +505,7 @@ document.addEventListener('keydown',function(event){
         console.log('I hear you')
         document.getElementById('detectedNote').innerHTML = ''
     }
-    if(event.key==' '){
+    if(event.key==' ' || event.key=='.'){
         if(Tone.Transport.state=='started'){
             // updateInterval = 10000
             Tone.Transport.pause();
@@ -518,8 +518,10 @@ document.addEventListener('keydown',function(event){
         }
     }
     if(event.key=='\\'){
-        if(mic.state=="stopped")
+        if(mic.state=="stopped"){
             mic.open()
+            console.log(mic)
+        }
         else
             mic.close()
     }

@@ -16,6 +16,7 @@
 </style>
 <html lang="en">
     <script src="./js/harmony.js"></script>
+    <script src="./js/canvasjs.min.js"></script>
     <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 <head>
     <meta charset="UTF-8">
@@ -168,6 +169,16 @@
                         <!-- <span id='seekEnd'>-:-- </span> -->
                     </p>
                 </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> MIC GAIN: </b>
+                        <span style="float: right;" id='micGain'>1.0 dB</span>
+                    </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 70%;" type="range" min=0 max=6 value=1 step=0.001 oninput="trackGainMic(this.value)">
+                        <!-- <span id='seekEnd'>-:-- </span> -->
+                    </p>
+                </div>
                 
             </div>
             <!-- <div class="row">
@@ -178,86 +189,146 @@
             <div class="row"><h3><p id="temp2" style="font-size: 40px;"></p></h3></div> -->
 
     </div>
-    <div><p style="font-size: 100px;" id="second"></p></div>
+    <div><p style="font-size: 10px;" id="second"></p></div>
+    <div><p style="font-size: 60px;" id="display0"></p></div>
+    <div><p style="font-size: 60px;" id="display1"></p></div>
+    <div><p style="font-size: 60px;" id="display2"></p></div>
+    <div><p style="font-size: 60px;" id="display3"></p></div>
+    <div><p style="font-size: 60px;" id="display4"></p></div>
+    <div><p style="font-size: 100px;" id="display5"></p></div>
+
     <div>
         <div style="display: inline-block ; width: 100%;">
-            <div style="width: 8%; display: inline-block;">
-            <p><b>BASS LIMIT: </b>
-                <span style="float: right;" id='threshold'>-50</span>
-                </div>
-                &nbsp;&nbsp;
-                <input style="width: 20%;" id="bassLimit" type="range" min=-95 max=-5 value=-50 step=1 oninput="changeThresholdBass(this.value)">
-                <!-- <span id='seekEnd'>-:-- </span> -->
-            &nbsp;&nbsp;
-            <div style="width: 8%; display: inline-block;">
-                <b>MID LIMIT: </b>
-                    <span style="float: right;" id='threshold1'>-40</span>
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Limit-1: </b>
+                    <span style="float: right;" id='threshold0'> </span>
                     </div>
                     &nbsp;&nbsp;
-                    <input style="width: 20%;" id="midLimit" type="range" min=-95 max=-5 value=-40 step=1 oninput="changeThresholdMid(this.value)">
+                    <input style="width: 13%;" id="limit0" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <b>Limit-2: </b>
+                    <span style="float: right;" id='threshold1'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="limit1" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(1,this.value)">
                     <!-- <span id='seekEnd'>-:-- </span> -->
             &nbsp;&nbsp;
-            <div style="width: 8%; display: inline-block;">
-                <b>HIGH LIMIT: </b>
-                    <span style="float: right;" id='threshold2'>-30</span>
+            <div style="width: 5%; display: inline-block;">
+                <b>Limit-3: </b>
+                    <span style="float: right;" id='threshold2'> </span>
                     </div>
                     &nbsp;&nbsp;
-                    <input style="width: 20%;" id="highLimit" type="range" min=-95 max=-5 value=-30 step=1 oninput="changeThresholdHigh(this.value)">
+                    <input style="width: 13%;" id="limit2" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(2,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                    &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <b>Limit-4: </b>
+                    <span style="float: right;" id='threshold3'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="limit3" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(3,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                    &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <b>Limit-5: </b>
+                    <span style="float: right;" id='threshold4'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="limit4" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(4,this.value)">
                     <!-- <span id='seekEnd'>-:-- </span> -->
                 </p>
         </div>
+
+
+
         <div style="display: inline-block ; width: 100%;">
-            <div style="width: 8%; display: inline-block;">
-            <p><b>BASS START: </b>
-                <span style="float: right;" id='bassStart'>20</span>
-                </div>
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-1: </b>
+                    <span style="float: right;" id='stripStart0'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="start0" type="range" step=1 oninput="changeStripRegion(0,0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
                 &nbsp;&nbsp;
-                <input style="width: 20%;" type="range" min=20 max=150 value=20 step=1 oninput="changeBassStart(this.value)">
-                <!-- <span id='seekEnd'>-:-- </span> -->
-            &nbsp;&nbsp;
-            <div style="width: 8%; display: inline-block;">
-                <p><b>MID START: </b>
-                    <span style="float: right;" id='midStart'>116</span>
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-2: </b>
+                    <span style="float: right;" id='stripStart1'> </span>
                     </div>
                     &nbsp;&nbsp;
-                    <input style="width: 20%;" type="range" min=50 max=200 value=116 step=1 oninput="changeMidStart(this.value)">
+                    <input style="width: 13%;" id="start1" type="range" step=1 oninput="changeStripRegion(1,0,this.value)">
                     <!-- <span id='seekEnd'>-:-- </span> -->
-            &nbsp;&nbsp;
-            <div style="width: 8%; display: inline-block;">
-                <p><b>HIGH START: </b>
-                    <span style="float: right;" id='highStart'>200</span>
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-3: </b>
+                    <span style="float: right;" id='stripStart2'> </span>
                     </div>
                     &nbsp;&nbsp;
-                    <input style="width: 20%;" type="range" min=150 max=400 value=200 step=1 oninput="changeHighStart(this.value)">
+                    <input style="width: 13%;" id="start2" type="range" step=1 oninput="changeStripRegion(2,0,this.value)">
                     <!-- <span id='seekEnd'>-:-- </span> -->
-            
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-4: </b>
+                    <span style="float: right;" id='stripStart3'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="start3" type="range" step=1 oninput="changeStripRegion(3,0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-5: </b>
+                    <span style="float: right;" id='stripStart4'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="start4" type="range" step=1 oninput="changeStripRegion(4,0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
             </p>
         </div>
+
+
         <div style="display: inline-block ; width: 100%;">
-            <div style="width: 8%; display: inline-block;">
-            <p><b>BASS END: </b>
-                <span style="float: right;" id='bassEnd'>115</span>
-                </div>
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-1: </b>
+                    <span style="float: right;" id='stripEnd0'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="end0" type="range" step=1 oninput="changeStripRegion(0,1,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
                 &nbsp;&nbsp;
-                <input style="width: 20%;" type="range" min=30 max=150 value=115 step=1 oninput="changeBassEnd(this.value)">
-                <!-- <span id='seekEnd'>-:-- </span> -->
-            &nbsp;&nbsp;
-            <div style="width: 8%; display: inline-block;">
-                <p><b>MID END: </b>
-                    <span style="float: right;" id='midEnd'>190</span>
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-2: </b>
+                    <span style="float: right;" id='stripEnd1'> </span>
                     </div>
                     &nbsp;&nbsp;
-                    <input style="width: 20%;" type="range" min=100 max=200 value=190 step=1 oninput="changeMidEnd(this.value)">
+                    <input style="width: 13%;" id="end1" type="range" step=1 oninput="changeStripRegion(1,1,this.value)">
                     <!-- <span id='seekEnd'>-:-- </span> -->
-            &nbsp;&nbsp;
-            <div style="width: 8%; display: inline-block;">
-                <p><b>HIGH END: </b>
-                    <span style="float: right;" id='highEnd'>400</span>
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-3: </b>
+                    <span style="float: right;" id='stripEnd2'> </span>
                     </div>
                     &nbsp;&nbsp;
-                    <input style="width: 20%;" type="range" min=180 max=400 value=400 step=1 oninput="changeHighEnd(this.value)">
+                    <input style="width: 13%;" id="end2" type="range" step=1 oninput="changeStripRegion(2,1,this.value)">
                     <!-- <span id='seekEnd'>-:-- </span> -->
-            
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-4: </b>
+                    <span style="float: right;" id='stripEnd3'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="end3" type="range" step=1 oninput="changeStripRegion(3,1,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-5: </b>
+                    <span style="float: right;" id='stripEnd4'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="end4" type="range" step=1 oninput="changeStripRegion(4,1,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
             </p>
         </div>
         
@@ -328,7 +399,7 @@ synth.set({
 
 //---------------------------------------------------SONG PLAYER----------------------------------------
 
-var track = "./songs/harryFalling.mp3"
+var track = "./songs/gravity.mp3"
 var songPlayer = new Tone.Player(track)
 // console.log(songPlayer)
 
@@ -351,7 +422,7 @@ filterUpperBound.connect(songPlayerGain)
 
 songPlayerGain.connect(songPlayerALX)                            // CHANGED FOR MIC
 songPlayerVolume = new Tone.Gain().toMaster()
-songPlayerVolume.gain.value = 0.8
+songPlayerVolume.gain.value = 0.5
 filterLowerBound.connect(songPlayerVolume)
 filterUpperBound.connect(songPlayerVolume)
 
@@ -418,10 +489,22 @@ function outputGain(val){
 
 //---------------------------------------------------MIC UP----------------------------------------------
 
-var mic = new Tone.UserMedia();
-var micALX = new Tone.Analyser("fft",16384).toMaster()
+var mic = new Tone.UserMedia()
+var micALX = new Tone.Analyser("fft",16384)//.toMaster()
 mic.connect(filterLowerBound)
-mic.connect(filterUpperBound)
+filterLowerBound.connect(filterUpperBound)
+// mic.connect(micGain)
+// micGain.connect(micALX)
+var micGain = new Tone.Gain()
+filterUpperBound.connect(micGain)
+micGain.connect(micALX)
+
+function trackGainMic(val){
+    micGain.gain.value = val
+    document.getElementById('micGain').innerHTML = val+'dB'
+}
+
+mic.connect(micALX);
 
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -505,12 +588,69 @@ Tone.Transport.scheduleRepeat(function(time){
     
 },'0.005')
 
+//-----------------------------------------------------------------------------------------CANVAS-------------------------------------------------------------------------------------------------------------
+
+
+var threshold = [-60,-55,-50,-45,-40]
+var octaveRegions1 = 
+[
+    {start:20,end:60},
+    {start:47,end:94},
+    {start:94,end:188},
+    {start:188,end:378},
+    {start:378,end:740},
+]
+var octaveRegions = octaveRegions1
+// [
+//     {start:20,end:60},
+//     {start:38,end:111},
+//     {start:80,end:220},
+//     {start:165,end:350},
+//     {start:330,end:400},
+// ]
+
+for(t in threshold){
+    document.getElementById('threshold'+String(t)).innerHTML = threshold[t]
+    document.getElementById('limit'+String(t)).value = threshold[t]
+}
+
+for(i in octaveRegions){
+    o = parseInt(i)
+    // console.log(document.getElementById('stripStart'+String(o)))
+    document.getElementById('stripStart'+String(o)).innerHTML = octaveRegions[o].start
+    document.getElementById('stripEnd'+String(o)).innerHTML = octaveRegions[o].end
+
+    s = document.getElementById('start'+String(o))
+    s.value = octaveRegions[o].start
+    if(o==0)
+        s.min = octaveRegions[0].start
+    else
+        s.min = Math.floor((octaveRegions1[o-1].end + octaveRegions1[o-1].start)/2)
+    
+    if(o==4)
+        s.max = octaveRegions[4].end
+    else
+        s.max = octaveRegions1[o+1].start
+    
+    e = document.getElementById('end'+String(o))
+    e.value = octaveRegions[o].end
+    if(o==0)
+        e.min = octaveRegions[0].start
+    else
+        e.min = octaveRegions1[o-1].end
+    
+    if(o==4)
+        e.max = octaveRegions[4].end
+    else
+        e.max = Math.floor((octaveRegions1[o+1].end + octaveRegions1[o+1].start)/2)
+    
+}
 
 var dps = []
 
-for(var i=0;i<400;i++){
+for(var i=0;i<octaveRegions[4].end;i++){
     // console.log(i,i in notes)
-    dps.push({x:i,y:-95,label:'.'})
+    dps.push({x:i,y:-95})
 }
 // dps.push({x:160,y:-95})
 
@@ -522,45 +662,78 @@ var chart = new CanvasJS.Chart("chartContainer",{
     },
     axisX: {						
         title: "Axis X Title",
-        stripLines:[
+        stripLines:[                    // FOR EACH OCTAVE
         {
-            startValue: 20,
-            endValue:115,
-            color:"#e6faff",
+            startValue: octaveRegions[0].start,             // OCTAVE 1
+            endValue: octaveRegions[0].end,
+            color:"#8cbec2",
+            opacity:0.9
         },
         {
-            startValue: 116,
-            endValue: 190,
-            color:"#ffd480"
+            startValue: octaveRegions[1].start,             // OCTAVE 2
+            endValue: octaveRegions[1].end,
+            color:"#ffd480",
+            opacity:0.9
         },
         {
-            startValue: 200,
-            endValue:400,
-            color:"#eee"
+            startValue: octaveRegions[2].start,             // OCTAVE 3
+            endValue: octaveRegions[2].end,
+            color:"#f08d86",
+            opacity:0.9
+        },
+        {
+            startValue: octaveRegions[3].start,             // OCTAVE 4
+            endValue: octaveRegions[3].end,
+            color:"#a1de90",
+            opacity:0.9
+        },
+        {
+            startValue: octaveRegions[4].start,             // OCTAVE 5
+            endValue: octaveRegions[4].end,
+            color:"#b5b5ba",
+            opacity:0.9
         }
         ]
     },
     axisY: {						
         title: "Units",
-        stripLines:[
-        {
-            value:-50,
-            color:"#ffd480",
-            thickness:3,
-            showOnTop: false
+        // stripLines:[
+        //     {
+        //         value: threshold[0],
+        //         color:"red",
+        //         thickness:2,
+        //         opacity: 0.7
 
-        },
-        {
-            value:-40,
-            color:"#e6faff",
-            thickness:3
-        },
-        {
-            value:-30,
-            color:"black",
-            thickness:1
-        }
-        ]
+        //     },
+        //     {
+        //         value: threshold[1],
+        //         color:"red",
+        //         thickness:2,
+        //         opacity: 0.7
+
+        //     },
+        //     {
+        //         value: threshold[2],
+        //         color:"red",
+        //         thickness:2,
+        //         opacity: 0.7
+
+        //     },
+        //     {
+        //         value: threshold[3],
+        //         color:"red",
+        //         thickness:2,
+        //         opacity: 0.7
+
+        //     },
+        //     {
+        //         value: threshold[4],
+        //         color:"red",
+        //         thickness:2,
+        //         opacity: 0.7
+
+        //     }
+        // ]
     },
     data: [{
         type: "line",
@@ -569,349 +742,497 @@ var chart = new CanvasJS.Chart("chartContainer",{
 });
 
 chart.render();
-var updateInterval = 5;
+var updateInterval = 10;
 
 second =document.getElementById('second')
-third =document.getElementById('third')
-fourth =document.getElementById('fourth')
-fifth =document.getElementById('fifth')
+
 
 var intervals = 1
-var B_THRESHOLD = -50
-var M_THRESHOLD = -40
-var H_THRESHOLD = -30
-
-var bassStart=20
-var midStart=116
-var highStart=200
-
-var bassEnd=115
-var midEnd=190
-var highEnd=400
 
 
 console.log('chart')
 console.log(chart)
 
-function changeThresholdBass(val){
+function changeThreshold(octave,val){
     // console.log('threshold is',B_THRESHOLD)
-    B_THRESHOLD = parseInt(val)
-    document.getElementById('threshold').innerHTML = B_THRESHOLD
+    threshold[octave] = parseInt(val)
+    
+    document.getElementById('threshold'+String(octave)).innerHTML = threshold[octave]
 
-    // console.log(chart.axisY[0].stripLines[0])
-
-    chart.axisY[0].stripLines[0].set('value',Math.floor(B_THRESHOLD))
-
-    // console.log(chart.axisY[0].stripLines[0])
-}
-function changeThresholdMid(val){
-    // console.log('threshold is',B_THRESHOLD)
-    M_THRESHOLD = parseInt(val)
-    document.getElementById('threshold1').innerHTML = M_THRESHOLD
-
-    // console.log(chart.axisY[0].stripLines[0])
-
-    chart.axisY[0].stripLines[1].set('value',Math.floor(M_THRESHOLD))
-
-    // console.log(chart.axisY[0].stripLines[0])
-}
-function changeThresholdHigh(val){
-    // console.log('threshold is',B_THRESHOLD)
-    H_THRESHOLD = parseInt(val)
-    document.getElementById('threshold2').innerHTML = H_THRESHOLD
-
-    // console.log(chart.axisY[0].stripLines[0])
-
-    chart.axisY[0].stripLines[2].set('value',Math.floor(H_THRESHOLD))
-
-    // console.log(chart.axisY[0].stripLines[0])
+    // chart.axisY[0].stripLines[octave].set('value',Math.floor(threshold[octave]))
 }
 
+function changeStripRegion(octave,endPoint,val){
+    if(endPoint==0) // start
+    {
+        octaveRegions[octave].start = parseInt(val)
+        document.getElementById('stripStart'+String(octave)).innerHTML = octaveRegions[octave].start
+    
+        chart.axisX[0].stripLines[octave].set('startValue',(octaveRegions[octave].start))
 
-function changeBassStart(val){
-    bassStart = parseInt(val)
-    document.getElementById('bassStart').innerHTML = bassStart
-    for(let p=20;p<bassStart;p++){
-        dps[p]['y'] = -95
+        if(octave==0)
+            p = 0
+        else
+            p = octaveRegions[octave-1].end
+        for(;p<parseInt(val);p++)
+            dps[p]['y']=-95;
     }
 
-    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
-    chart.axisX[0].stripLines[0].set('startValue',(bassStart))
-}
-function changeMidStart(val){
-    // console.log(val)
-    midStart = Math.max(parseInt(val),bassEnd);
-    document.getElementById('midStart').innerHTML = midStart
-    for(let p=bassEnd;p<midStart;p++){
-        dps[p]['y'] = -95
+    else
+    {
+        octaveRegions[octave].end = parseInt(val)
+        document.getElementById('stripEnd'+String(octave)).innerHTML = octaveRegions[octave].end
+    
+        chart.axisX[0].stripLines[octave].set('endValue',(octaveRegions[octave].end))
+
+        if(octave==4)
+            p = octaveRegions[4].end
+        else
+            p = octaveRegions[octave+1].start
+        for(;p>parseInt(val);p--)
+            dps[p]['y']=-95;
     }
-
-    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
-    chart.axisX[0].stripLines[1].set('startValue',(midStart))
-    // console.log(chart.axisX[0].stripLines[1])
-}
-function changeHighStart(val){
-    highStart = Math.max(parseInt(val),midEnd);
-    document.getElementById('highStart').innerHTML = highStart
-    for(let p=midEnd;p<highStart;p++){
-        dps[p]['y'] = -95
-    }
-
-    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
-    chart.axisX[0].stripLines[2].set('startValue',(highStart))
 }
 
-function changeBassEnd(val){
-    bassEnd = Math.min(parseInt(val),midStart);
-    document.getElementById('bassEnd').innerHTML = bassEnd
-    for(let p=bassEnd;p<midStart;p++){
-        dps[p]['y'] = -95
-    }
-
-    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
-    chart.axisX[0].stripLines[0].set('endValue',(bassEnd))
-}
-function changeMidEnd(val){
-    midEnd = Math.min(parseInt(val),highStart);
-    document.getElementById('midEnd').innerHTML = midEnd
-    for(let p=midEnd;p<highStart;p++){
-        dps[p]['y'] = -95
-    }
-
-    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
-    chart.axisX[0].stripLines[1].set('endValue',(midEnd))
-}
-function changeHighEnd(val){
-    highEnd = parseInt(val)
-    document.getElementById('highEnd').innerHTML = highEnd
-    for(let p=highEnd;p<800;p++){
-        dps[p]['y'] = -95
-    }
-
-    // chart.axisX[0].stripLines[0].set('startValue',Math.floor(bassWidth)-1)
-    chart.axisX[0].stripLines[2].set('endValue',(highEnd))
-}
 
 let hist = []
-for(var i=0;i<30;i++){
+histLength = 30
+for(var i=0;i<histLength;i++){
     hist.push(null)
 }
+
+chordHist = []
+for(var i=0;i<25;i++)
+    chordHist.push(null)
 
 avgBass = -70
 avgMid = -60
 avgHigh = -40
 
+peakLimit = [
+    {low:1,high:2},
+    {low:1,high:2},
+    {low:2,high:4},
+    {low:2,high:4},
+    {low:2,high:5}
+]
+
+thresholdLimit = [-60,-55,-50,-50,-45]
+
+
 var alxChart = function(){
+    if(Tone.Transport.state!='started') return
+    chart.render()
 
-    avgBass = (avgBass * intervals + B_THRESHOLD)/(intervals+1)
-    avgMid = (avgMid * intervals + M_THRESHOLD)/(intervals+1)
-    avgHigh = (avgHigh * intervals + H_THRESHOLD)/(intervals+1)
+    IDEA = 2    
+
+    // avgBass = (avgBass * intervals + B_THRESHOLD)/(intervals+1)
+    // avgMid = (avgMid * intervals + M_THRESHOLD)/(intervals+1)
+    // avgHigh = (avgHigh * intervals + H_THRESHOLD)/(intervals+1)
 
     
-    let topsB = []
-    let topsM = []
-    let topsH = []
+    var tops = [[],[],[],[],[]]
+
     // console.log(topsB)
+    // console.log("EEE")
     temp = songPlayerALX.getValue();
-    for(let p=bassStart;p<bassEnd;p++){
-        if(parseInt(p)==dps.length-1) continue
-        // console.log(p)
-        x = dps[p]["x"]
-        if(temp[x]<=-95) continue
+    for(var oct=0;oct<5;oct++){
+        for(let p=octaveRegions[oct].start;p<octaveRegions[oct].end;p++){
+            if(parseInt(p)==dps.length-1) continue
+            // console.log(p)
+            x = dps[p]["x"]
+            if(temp[x]<=-95) continue
+                
+            dps[p]["y"] = temp[x]
             
-        dps[p]["y"] = temp[x]
+            if(IDEA==1)
+                check = -45
+            if(IDEA==2)
+                check = threshold[oct]
 
-        if(temp[x]>B_THRESHOLD && x in notes){
-            octave = notes[x][notes[x].length-1]
-            
-            // topsB[octave].push([notes[x],Math.floor(temp[x])])
-            topsB.push([notes[x],temp[x]])
-            dps[p]["indexLabel"] = notes[x]
+            if(temp[x]>check && x in notes){
+                octave = notes[x][notes[x].length-1]
+                
+                // topsB[octave].push([notes[x],Math.floor(temp[x])])
+                tops[oct].push([notes[x],temp[x]])
+                dps[p]["indexLabel"] = notes[x]
+            }
+            else
+                dps[p]["indexLabel"] = ''
         }
-        else
-            dps[p]["indexLabel"] = ''
-    }
-    for(let p=midStart;p<midEnd;p++){
-        if(parseInt(p)==dps.length-1) continue
-        // console.log(p)
-        x = dps[p]["x"]
-        if(temp[x]<=-95) continue
-            
-        dps[p]["y"] = temp[x]
+        if(IDEA==2){
+            if(tops[oct].length > peakLimit[oct].high && threshold[oct] < -25){
+                
+                total = 0
+                for(var i=0;i<tops[oct].length;i++)
+                    total+=tops[oct][i][1]
+                
+                avg = Math.floor(total/tops[oct].length)
+                tops[oct] = tops[oct].filter(x=>{return x[1] > avg+8})
 
-        if(temp[x]>M_THRESHOLD && x in notes){
-            octave = notes[x][notes[x].length-1]
-            
-            // topsB[octave].push([notes[x],Math.floor(temp[x])])
-            // topsB.push([notes[x],temp[x]])
-            topsM.push([notes[x],temp[x]])
-            dps[p]["indexLabel"] = notes[x]
+                
+                changeThreshold(oct,threshold[oct]+1);
+                document.getElementById('limit'+String(o)).value=threshold[oct]+1
+            }
+            if(tops[oct].length < peakLimit[oct].low && threshold[oct] > thresholdLimit[oct]){
+                changeThreshold(oct,threshold[oct]-1);
+                document.getElementById('limit'+String(oct)).value=threshold[oct]-1
+            }
         }
-        else
-            dps[p]["indexLabel"] = ''
-    }
-    for(let p=highStart;p<highEnd;p++){
-        if(parseInt(p)==dps.length-1) continue
-        // console.log(p)
-        x = dps[p]["x"]
-        if(temp[x]<=-95) continue
-            
-        dps[p]["y"] = temp[x]
-
-        if(temp[x]>H_THRESHOLD && x in notes){
-            octave = notes[x][notes[x].length-1]
-            
-            // topsB[octave].push([notes[x],Math.floor(temp[x])])
-            // topsB.push([notes[x],temp[x]])
-            topsH.push([notes[x],temp[x]])
-            dps[p]["indexLabel"] = notes[x]
-        }
-        else
-            dps[p]["indexLabel"] = ''
     }
 
-    if(topsB.length > 3){
-        changeThresholdBass(B_THRESHOLD+1);
-        document.getElementById('bassLimit').value=B_THRESHOLD+1
-    }
-    if(topsB.length == 0 && B_THRESHOLD>-65){
-        changeThresholdBass(B_THRESHOLD-1);
-        document.getElementById('bassLimit').value=B_THRESHOLD-1
-    }
+    // 2 ideas : 
+    // 1 - don't change thresholds, and find peaks. If there are too many peaks, filter out peaks of peaks, and only if the slope of the peak is steep enough (lol didn't work)
+    // 2 - change thresholds and trust it to return the right peaks
 
-    if(topsM.length > 5){
-        changeThresholdMid(M_THRESHOLD+1);
-        document.getElementById('midLimit').value=M_THRESHOLD+1
-    }
-    if(topsM.length < 3 && M_THRESHOLD>-55){
-        changeThresholdMid(M_THRESHOLD-1);
-        document.getElementById('midLimit').value=M_THRESHOLD-1
-    }
-
-    if(topsH.length > 5){
-        changeThresholdHigh(H_THRESHOLD+1);
-        document.getElementById('highLimit').value=H_THRESHOLD+1
-    }
-    if(topsH.length < 3 && H_THRESHOLD>-45){
-        changeThresholdHigh(H_THRESHOLD-1);
-        document.getElementById('highLimit').value=H_THRESHOLD-1
-    }
     
-    if(Tone.Transport.state=='started'){
-        intervals++;
-        // res = decluster(topsB)
-        // res = res.map(x=>x[0].substring(0,x[0].length-1))
-        // hist.unshift(res)
+    
+    intervals++;
+    // chart.render()
+    // return
+    // res = decluster(topsB)
+    // res = res.map(x=>x[0].substring(0,x[0].length-1))
+    // hist.unshift(res)
 
-        res = decluster(topsB)
-        resM = decluster(topsM)
-        resH = decluster(topsH)
+    if(IDEA==2){
+        // chart.render()
+        // return
 
-        // str = getVisual(res.map(x=>x[0]))
-        res = res.map(x=>x[0].substring(0,x[0].length-1))
-        resM = resM.map(x=>x[0].substring(0,x[0].length-1))
-        resH = resH.map(x=>x[0].substring(0,x[0].length-1))
-        // if(res.length) console.log(res)
-
-        if(res.length==0 && resM.length==0) {
-            second.innerHTML = ''
-            return
+        results = tops.map(x=>{
+            return decluster(x)
+        })
+        for(var i=0;i<5;i++){
+            // if(results[i].length) document.getElementById('display'+String(i)).innerHTML = results[i].map(x=>x[0])
+            // else document.getElementById('display'+String(i)).innerHTML = '-'
         }
 
-        // second.innerHTML = ''
-        if(res.length)
-            bass = findTriad(res,resM)
-        else{
-            res=resM
-            bass = findTriad(res)
+        for(var i=0;i<5;i++){
+            results[i] = results[i].sort((a,b)=>{b[1]-a[1]})
+            // if(results[i].length) document.getElementById('display'+String(i)).innerHTML += Math.floor(results[i][0][1])
         }
-        let chord;
-        if(bass.length==2){
-            if(bass[1]!='/' && bass[1]!='5'){
-                chord = bass[0]+bass[1]
-                if(res.length && bass[0]!=res[0])
-                    chord += '/'+res[0]
+
+        results = results.filter(x=>{return x.length>0})
+        // console.log(results)
+
+        if(results.length==0) return
+
+        myArr = new Set()
+        for(var i=0;i<results.length;i++){
+            for(var j=0;j<results[i].length;j++){
+                myArr.add(results[i][j][0])
             }
-            else{
-                bass = findTriad(res,resM.concat(resH))
-                if(bass.length==2){
-                    if(bass[1]!='/'){
-                        chord = bass[0]+bass[1]
-                        if(res.length && bass[0]!=res[0])
-                            chord += '/'+res[0]
+        }
+        newdisp = document.getElementById('display5')
+        CHORDS = []
+        for(var n of myArr){
+            BASE = n
+            chordP = new Set()
+
+            for(var m of myArr){
+                chordP.add((12+revScale[m.substring(0,m.length-1)]-revScale[BASE.substring(0,BASE.length-1)])%12)
+            }
+        
+            
+            // newdisp.innerHTML = ''
+
+            // console.log(BASE,chordP)
+            
+            if(chordP.has(7)){
+                if(chordP.has(4)){
+                    type = 'maj'
+                    if(results[0][0][1] > -40 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
+                        type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
                     }
+                    if(chordP.has(10))
+                        type ='7'
+                    else if(chordP.has(11))
+                        type = 'maj7'
+                    
+                    
+                
+                    CHORDS.push([BASE,type])
                 }
-                else{
-                    chord = res[0]
+                if(chordP.has(3)){
+                    type = 'min'
+                    if(results[0][0][1] > -40 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
+                        type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
+                    }
+                    if(chordP.has(10))
+                        type ='m7'
+                    else if(chordP.has(11))
+                        type = 'mM7'
+                    
+                    
+                    
+                
+                    CHORDS.push([BASE,type])
                 }
+
+                type='5'
+
+                if(results[0][0][1] > -45 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
+                    type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
+                }
+                CHORDS.push([BASE,type])
+                
+                
             }
         }
-        hist.pop()
-        hist.unshift(chord)
+
+        CHORDS.sort((a,b)=>{
+            return (parseInt(a[0][a[0].length-1]) - parseInt(b[0][b[0].length-1]))
+        })
+
+        if(CHORDS.length==0) return
+
+        // console.log(CHORDS.filter(x=> x[1][0]!='5')) 
+        if(CHORDS.filter(x=>x[1][0]!='5').length)
+            temp = CHORDS.filter(x=>x[1][0]!='5')[0]   
+        else
+            temp = CHORDS[0]
+
+        hist.unshift(temp)
+        // newdisp.innerHTML = temp
+
+        counts = {}
+        for(var i=0;i<histLength;i++){ if(hist[i]==null) break
+            // x = hist[i][0].substring(0,hist[i][0].length-1)
+            x = hist[i][0].substring(0,hist[i][0].length-1)+hist[i][1]
+            if(x in counts){
+                counts[x]++
+            }
+            else
+                counts[x] = 1
+        }
+        // console.log(counts)
+
+        m = null
+        m2=null
+        for(c in counts){
+            // console.log(c)
+            if(m==null || counts[c]>counts[m]){
+                m2=m
+                m = c
+            }
+                
+        }
+        // console.log(m)
+
+        if(m==null) return
+
         
 
-        if(intervals%25==0){
-            if(intervals%50==0){
-                intervals=26
-            }
 
-            score = (3*avgBass)+(2*avgMid)+(avgHigh)
-            score = score/6
+        if(counts[m2]<histLength/5) m2=null
 
-            // console.log(score)
-            if(intervals>25){
-                if(score < -40 && songPlayerGain.gain.value <5){
-                    trackGain(songPlayerGain.gain.value + 0.3)
-                }
-                if(score > -30 && songPlayerGain.gain.value >0.3){
-                    trackGain(songPlayerGain.gain.value - 0.3)
-                }
-            }
+        // final = combine(m,m2)
+        final = m
+        console.log(final)
+        newdisp.innerHTML = final
 
+        // chordHist.unshift(final)
 
-            // console.log(hist)
-            counts = {}
-            for(c of hist){
-                if(c==undefined) continue
-                if(c in counts){
-                    counts[c]++;
-                }
-                else{
-                    counts[c]=1
-                }
-            }
-            console.log(counts)
-
-            if(Object.keys(counts).length==0) return
-
-            MAX = null
-            max2 = null
-            for(var i in counts){
-                if(MAX==null || counts[i]>MAX){
-                    max2=MAX
-                    MAX = i
-                }
-            }
-
-            if(counts[MAX]>5){
-                second.innerHTML = MAX
-            }
-            if(max2 && counts[max2>5]){
-                second.innerHTML += ' or '+max2
-            }
+        // if(intervals%20==0)
+        // {
+        //     counts = {}
+        //     for(var i=0;i<25;i++){
+        //         if(chordHist[i]==null) break
+        //         if(chordHist[i] in counts)
+        //             counts[chordHist[i]]++
+        //         else
+        //             counts[chordHist[i]]=1
+        //     }
+        //     m=null
+        //     for(var i in counts)
+        //         if(m==null || counts[c]>counts[m])
+        //             m=c
+        //     console.log(counts)
+        //     newdisp.innerHTML = m
+        // }
             
-            // console.log(bass)
             
+        // BASE2 = null
+        // if(results[0].length>1)
+        //     BASE2 = results[0][1][0].substring(0,results[0][1][0].length-1)
+        // else if(results.length>1)
+        //     BASE2 = results[1][0][0].substring(0,results[1][0][0].length-1)
+
+        
 
 
+        
+        return
 
 
-        }
-        chart.render()
     }
+
+
+    if(IDEA==1){
+
+        // need to find peaks from all octaves
+        MyNotes = new Set()
+        for(var i=0;i<5;i++){
+            res = decluster(tops[i])
+            
+            if(res.length>peakLimit[i].high){
+                res = res.sort((a,b)=>{return b[1]-a[1]})
+
+                
+            }
+            if(res.length){
+                MyNotes.add(res[0][0].substring(0,res[0][0].length-1))
+                // console.log(res.map(x=>x[0].substring(0,x[0].length-1)).slice(0,peakLimit[i].high))
+                // console.log(Math.floor(res[res.length-1][1]))
+                // document.getElementById('display'+String(i)).innerHTML = res.map(x=>x[0].substring(0,x[0].length-1)).slice(0,peakLimit[i].high) + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;---- ' + String(Math.floor(Math.abs(10 + res[0][1]/10)))
+                // res = res.map(x=>x[0].substring(0,x[0].length-1))
+            }
+            else
+                document.getElementById('display'+String(i)).innerHTML = '-'
+        }
+
+        for(n of MyNotes){
+            // console.log(n)
+            chordP = new Set()
+            base = revScale[n]
+            for(var i=0;i<5;i++){
+                for(var j=0;j<tops[i].length;j++)
+                    chordP.add((12+revScale[tops[i][j][0].substring(0,tops[i][j][0].length-1)] - base) % 12)
+            }
+            // if(n=='G') console.log(chordP)
+            disp = document.getElementById('display0')
+            disp.innerHTML = ''
+            // console.log(0 in chordP)
+            if(chordP.has(7))
+            {
+                if(chordP.has(4))
+                    disp.innerHTML += n+'maj, '
+                if(chordP.has(3))
+                    disp.innerHTML += n+'min, '
+
+                disp.innerHTML += n+'5, '
+            }
+        }
+
+    }
+    chart.render()
+
 }
 
 setInterval(function(){alxChart()}, updateInterval);
+
+function combine(c1,c2){
+    c1 = JSON.stringify(c1).split(',')
+    c1[0] = c1[0].substring(1,2)
+    
+    
+    if(c2==null){
+        c1[1] = c1[1].substring(0,c1[1].length-1)
+        if(c1[1][3]=='/'){
+            b = c1[1].substring(4,c1[1].length)
+            n = (12+revScale[b] - revScale[c1[0]])%12
+
+            if(n==10){
+                if(c1[1][1]=='a')
+                    return c1[0]+'7'
+                return c1[0]+'m7'
+            }
+            if(n==11){
+                if(c1[1][1]=='a')
+                    return c1[0]+'maj7'
+                return c1[0]+'mM7'
+            }
+        }
+        return c1[0]+c1[1]
+        
+        
+
+        // return c1[0]+c1[1].substring(0,c1[1].length-1)
+    }
+    // Combine 2 chords c1, c2
+    // Format: ['C','maj/G'],...
+    // For now, remove '/G'
+    console.log(c1)
+    c2 = JSON.stringify(c2).split(',')
+    c2[0] = c2[0].substring(1,2)
+    c1[1] = c1[1].substring(0,3)
+    
+    c2[1] = c2[1].substring(0,3)
+
+    if(c1[1][0]=='5') c1[1]='5'
+    if(c2[1][0]=='5') c2[1]='5'
+
+    base1 = c1[0]
+    base2 = c2[0]
+    offset = (12+revScale[base2]-revScale[base1])%12
+
+    chord = new Set()
+    // console.log(c1,c2)
+    if(c1[1]=='maj'){
+        chord.add(0)
+        chord.add(4)
+        chord.add(7)
+    }
+    else if(c1[1]=='min'){
+        chord.add(0)
+        chord.add(3)
+        chord.add(7)
+    }
+    else if(c1[1]=='5'){
+        chord.add(0)
+        chord.add(7)
+    }
+
+    if(c2[1]=='maj'){
+        chord.add((0+offset)%12)
+        chord.add((4+offset)%12)
+        chord.add((7+offset)%12)
+    }
+    else if(c2[1]=='min'){
+        chord.add((0+offset)%12)
+        chord.add((3+offset)%12)
+        chord.add((7+offset)%12)
+    }
+    else if(c2[1]=='5'){
+        chord.add((0+offset)%12)
+        chord.add((7+offset)%12)
+    }
+
+    arr=[]
+    for(i of chord.values())
+        arr.push(i)
+
+    arr = arr.sort((a,b)=>a-b)
+
+    // console.log(arr)
+    
+    if(JSON.stringify(arr)=='[0,4,7,10]')
+        return base1+'7'
+    if(JSON.stringify(arr)=='[0,4,7,11]')
+        return base1+'maj7'
+    if(JSON.stringify(arr)=='[0,3,7,10]')
+        return base1+'m7'
+    if(JSON.stringify(arr)=='[0,3,7,11]')
+        return base1+'mM7'
+
+    arr = arr.map(x=>{
+        return (12+x-offset)%12
+    })
+    arr = arr.sort((a,b)=>a-b)
+
+    if(JSON.stringify(arr)=='[0,4,7,10]')
+        return base2+'7'
+    if(JSON.stringify(arr)=='[0,4,7,11]')
+        return base2+'maj7'
+    if(JSON.stringify(arr)=='[0,3,7,10]')
+        return base2+'m7'
+    if(JSON.stringify(arr)=='[0,3,7,11]')
+        return base2+'mM7'
+    
+    // alert(base1+c1[1])
+    return base1+c1[1]
+}
+
+console.log(combine(['C#','min'],['E','maj/B']))
 
 
 function getVisual(tops){
@@ -970,23 +1291,44 @@ function decluster(tops){
         low = cluster[0]
         high = cluster[1]
         orient = 'up'
-        for(var i=low;i<=high;i++){
+
+        len = 0
+        climb = 0
+        let peak;
+
+        for(var i=low;i<=high;i++,len++){
             if(orient=='up'){
                 if(i==high){
-                    peaks.push(tops[i])
+                    peak = tops[i]
+                    // peaks.push(peak)
                     break
                 }
                 if(arr[i+1][1] < arr[i][1]){
-                    peaks.push(tops[i])
+                    peak = tops[i]
+                    // peaks.push(peak)
                     orient='down'
                 }
+                climb += Math.abs(arr[i+1][1] - arr[i][1])
+                    
             }
             else{
                 if(i<high && arr[i+1][1] > arr[i][1]){
+                    // Finished a peak
+                    // console.log('Found a peak')
+                    // console.log(peak[0],Math.floor(climb),len)
+                    if(climb/len > 7)
+                        peaks.push(peak)
+                    peak = null
+                    len=0
+                    climb=0
                     orient='up'
                 }
+                if(i<high)climb += Math.abs(arr[i+1][1] - arr[i][1])
             }
+            
         }
+        if(peak!=null)
+            peaks.push(peak)
     }
     // console.log(peaks)
     return peaks
