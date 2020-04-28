@@ -509,6 +509,7 @@ document.addEventListener('keydown',function(event){
         if(Tone.Transport.state=='started'){
             // updateInterval = 10000
             Tone.Transport.pause();
+            synth.releaseAll();
             // recorder.stop()
         }
         else{

@@ -26,6 +26,10 @@
 </head>
 <body>
     <div class="row" id="keyboard-wrapper">
+        <div class="row">
+            <label>Play along? </label>
+            <input type="checkbox" onclick="togglePlayAlong(this.checked)">
+        </div>
         <div class="row"><button onclick="toggleKeyboard()"><h2>C Scale Keyboard lol</h2></button></div>
 
         <div class="row" id="keyboard" style="display: none">
@@ -165,7 +169,7 @@
                         <span style="float: right;" id='gain'>1.0 dB</span>
                     </div>
                         &nbsp;&nbsp;
-                        <input style="width: 70%;" type="range" min=0 max=6 value=1 step=0.001 oninput="trackGain(this.value)">
+                        <input style="width: 70%;" id="trackGain" type="range" min=0 max=6 value=1 step=0.001 oninput="trackGain(this.value)">
                         <!-- <span id='seekEnd'>-:-- </span> -->
                     </p>
                 </div>
@@ -175,7 +179,7 @@
                         <span style="float: right;" id='micGain'>1.0 dB</span>
                     </div>
                         &nbsp;&nbsp;
-                        <input style="width: 70%;" type="range" min=0 max=6 value=1 step=0.001 oninput="trackGainMic(this.value)">
+                        <input style="width: 70%;" type="range" id="trackGainMic" min=0 max=6 value=1 step=0.001 oninput="trackGainMic(this.value)">
                         <!-- <span id='seekEnd'>-:-- </span> -->
                     </p>
                 </div>
@@ -397,6 +401,8 @@ synth.set({
     }
 })
 
+
+
 //---------------------------------------------------SONG PLAYER----------------------------------------
 
 var track = "./songs/gravity.mp3"
@@ -477,6 +483,7 @@ function lowFilterTrack(val){
 
 function trackGain(val){
     songPlayerGain.gain.value=val
+    console.log(val)
     document.getElementById('gain').innerHTML=' '+String(val)+' dB'
 }
 
@@ -819,12 +826,46 @@ peakLimit = [
 
 thresholdLimit = [-60,-55,-50,-50,-45]
 
+PREVCHORD = null
+
+playAlong = false
+function togglePlayAlong(val){
+    // console.log(val)
+    playAlong = val
+
+    if (!playAlong)
+        synth.releaseAll()
+}
 
 var alxChart = function(){
-    if(Tone.Transport.state!='started') return
+    if(Tone.Transport.state!='started') {
+        synth.releaseAll()
+        return
+    }
+    
     chart.render()
 
     IDEA = 2    
+
+    AVERAGE_VOLUME = 0
+    for(var i=0;i<4;i++){
+        AVERAGE_VOLUME += threshold[i]
+    }
+    AVERAGE_VOLUME = Math.floor(AVERAGE_VOLUME/4)
+
+    // document.getElementById('display0').innerHTML = AVERAGE_VOLUME
+
+    if(AVERAGE_VOLUME < -50 && micGain.gain.value <= 5.5){
+        trackGainMic(micGain.gain.value + 0.05)
+        document.getElementById('trackGainMic').value = micGain.gain.value
+        // document.getElementById('gain').innerHTML = songPlayerGain.gain.value+ ' dB'
+    }
+    if(AVERAGE_VOLUME > -35 && micGain.gain.value >0.2){
+        trackGainMic(micGain.gain.value - 0.05)
+        document.getElementById('trackGainMic').value = micGain.gain.value
+        // document.getElementById('gain').innerHTML = songPlayerGain.gain.value+ ' dB'
+    }
+
 
     // avgBass = (avgBass * intervals + B_THRESHOLD)/(intervals+1)
     // avgMid = (avgMid * intervals + M_THRESHOLD)/(intervals+1)
@@ -919,7 +960,7 @@ var alxChart = function(){
         myArr = new Set()
         for(var i=0;i<results.length;i++){
             for(var j=0;j<results[i].length;j++){
-                myArr.add(results[i][j][0])
+                myArr.add(results[i][j])
             }
         }
         newdisp = document.getElementById('display5')
@@ -927,45 +968,91 @@ var alxChart = function(){
         for(var n of myArr){
             BASE = n
             chordP = new Set()
+            weighted = []
 
             for(var m of myArr){
-                chordP.add((12+revScale[m.substring(0,m.length-1)]-revScale[BASE.substring(0,BASE.length-1)])%12)
+                temp = (12 + revScale[m[0].substring(0,m[0].length-1)]-revScale[BASE[0].substring(0,BASE[0].length-1)])%12
+                weighted.push([temp, m[1]])
+                chordP.add(temp)
             }
+
+            // console.log(weighted)
+            
+            scores = [null,null,null,null,null,null,null,null,null,null,null,null]
+            for(var i=0;i<weighted.length;i++){
+                off = weighted[i][0]
+                vol = weighted[i][1]
+
+                if(scores[off]==null){
+                    scores[off] = [off, Math.abs(vol), 1]
+                }
+                else
+                {
+                    scores[off][1]+=Math.abs(vol)
+                    scores[off][2]++;
+                }
+            }
+
+            for(var i=0;i<12;i++){
+                if(scores[i]==null) continue
+
+                scores[i] = [i,(Math.floor((scores[i][1])/Math.pow(scores[i][2],2)))]
+            }
+
+            scores = scores.filter(y=>{
+                if(y==null)
+                    return false
+                x = y[0]
+                if(x!=0 && x!=3 && x!=4 && x!=7 && x!=10 && x!=11)
+                    return false
+
+                return true
+            })
+            if(scores.length == 0) continue
+
+            // console.log(BASE[0])
+            // console.log(scores)
+            sum=0
+            for(var i=0;scores[i];i++){
+                sum+=scores[i][1]
+            }
+            sum = (sum/scores.length)*(BASE[0][BASE[0].length-1]/2)///(scores.length)
+            // console.log(sum)
         
             
             // newdisp.innerHTML = ''
 
             // console.log(BASE,chordP)
-            
+            BASE = BASE[0]
             if(chordP.has(7)){
                 if(chordP.has(4)){
                     type = 'maj'
-                    if(results[0][0][1] > -40 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
-                        type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
-                    }
                     if(chordP.has(10))
                         type ='7'
                     else if(chordP.has(11))
                         type = 'maj7'
-                    
-                    
-                
-                    CHORDS.push([BASE,type])
-                }
-                if(chordP.has(3)){
-                    type = 'min'
                     if(results[0][0][1] > -40 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
                         type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
                     }
+                    
+                    
+                
+                    CHORDS.push([BASE,type,sum])
+                }
+                if(chordP.has(3)){
+                    type = 'min'
                     if(chordP.has(10))
                         type ='m7'
                     else if(chordP.has(11))
                         type = 'mM7'
+                    if(results[0][0][1] > -40 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
+                        type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
+                    }
                     
                     
                     
                 
-                    CHORDS.push([BASE,type])
+                    CHORDS.push([BASE,type,sum])
                 }
 
                 type='5'
@@ -973,14 +1060,18 @@ var alxChart = function(){
                 if(results[0][0][1] > -45 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
                     type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
                 }
-                CHORDS.push([BASE,type])
+                CHORDS.push([BASE,type,sum])
                 
                 
             }
         }
 
+        // CHORDS.sort((a,b)=>{
+        //     return (parseInt(a[0][a[0].length-1]) - parseInt(b[0][b[0].length-1]))
+        // })
+
         CHORDS.sort((a,b)=>{
-            return (parseInt(a[0][a[0].length-1]) - parseInt(b[0][b[0].length-1]))
+            return a[2]-b[2]
         })
 
         if(CHORDS.length==0) return
@@ -995,14 +1086,17 @@ var alxChart = function(){
         // newdisp.innerHTML = temp
 
         counts = {}
+        
         for(var i=0;i<histLength;i++){ if(hist[i]==null) break
             // x = hist[i][0].substring(0,hist[i][0].length-1)
-            x = hist[i][0].substring(0,hist[i][0].length-1)+hist[i][1]
-            if(x in counts){
-                counts[x]++
+            x = [hist[i][0].substring(0,hist[i][0].length-1) , hist[i][1]]
+            // console.log(x)
+            if(x[0]+x[1] in counts){
+                counts[x[0]+x[1]][0]++
             }
-            else
-                counts[x] = 1
+            else{
+                counts[x[0]+x[1]] = [1,[x[0],x[1]]]
+            }
         }
         // console.log(counts)
 
@@ -1010,7 +1104,7 @@ var alxChart = function(){
         m2=null
         for(c in counts){
             // console.log(c)
-            if(m==null || counts[c]>counts[m]){
+            if(m==null || counts[c][0]>counts[m][0]){
                 m2=m
                 m = c
             }
@@ -1021,14 +1115,54 @@ var alxChart = function(){
         if(m==null) return
 
         
+        if(m2==null) return
 
-
-        if(counts[m2]<histLength/5) m2=null
+        if(counts[m2][0]<histLength/5) m2=null
 
         // final = combine(m,m2)
-        final = m
-        console.log(final)
-        newdisp.innerHTML = final
+        final = counts[m][1]
+        root = final[0]
+        type = final[1]
+        // console.log(type.split('/'))
+        // console.log(final)
+        
+        if(type=='5' && PREVCHORD && root == PREVCHORD[0] && PREVCHORD[1][0]=='m'){
+            return
+        }
+        if(playAlong){
+            NOTES1 = getNotes(PREVCHORD)
+            // for(var n in NOTES.values())
+            //     synth.triggerRelease(NOTES[i])
+
+            
+            NOTES2 = getNotes(final)
+
+            union = new Set()
+            for(var x of NOTES1) union.add(x)
+            for(var x of NOTES2) union.add(x)
+
+            console.log(union)
+
+            for(var x of union){
+                if(NOTES1.has(x) && NOTES2.has(x)) continue
+
+                if(NOTES1.has(x))
+                    synth.triggerRelease(x)
+                else
+                    synth.triggerAttack(x)
+            }
+        }
+
+        // If both sets have some same notes, don't do anything with them
+        // If note in setA but not in set B, release
+        // If note in setB but not in setA, attack
+
+        // for(var i=0;NOTES[i];i++)
+        //     synth.triggerAttack(NOTES[i])
+        // attackNotes(final)
+        PREVCHORD = final
+        newdisp.innerHTML = PREVCHORD[0]+PREVCHORD[1]
+            
 
         // chordHist.unshift(final)
 
@@ -1119,6 +1253,69 @@ var alxChart = function(){
 }
 
 setInterval(function(){alxChart()}, updateInterval);
+
+
+function getNotes(chord){
+    // format = ['C#','maj7/B']
+// console.log(chord)
+    if(chord==null)
+        return new Set()
+    root = chord[0]
+    temp = chord[1].split('/')
+    type = temp[0]
+    if(temp[1])
+        base = temp[1]
+    else
+        base = root
+    
+    // base += '2'
+    arr = new Set()
+    arr.add(root+'3')
+    
+    if(type=='5'){
+        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    }
+    else if(type=='maj'){
+        arr.add(scale[ (  revScale[root] + 4    ) % 12 ]+'3')
+        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    }
+    else if(type=='maj7'){
+        arr.add(scale[ (  revScale[root] + 4    ) % 12 ]+'3')
+        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+        // arr.add(scale[ (  revScale[root] + 11    ) % 12 ]+'3')
+    }
+    else if(type=='7'){
+        arr.add(scale[ (  revScale[root] + 4    ) % 12 ]+'3')
+        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+        // arr.add(scale[ (  revScale[root] + 10    ) % 12 ]+'3')
+    }
+    else if(type=='min'){
+        arr.add(scale[ (  revScale[root] + 3    ) % 12 ]+'3')
+        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    }
+    else if(type=='m7'){
+        arr.add(scale[ (  revScale[root] + 3    ) % 12 ]+'3')
+        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+        // arr.add(scale[ (  revScale[root] + 10    ) % 12 ]+'3')
+    }
+    else if(type=='mM7'){
+        arr.add(scale[ (  revScale[root] + 3    ) % 12 ]+'3')
+        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+        // arr.add(scale[ (  revScale[root] + 11    ) % 12 ]+'3')
+    }
+
+    
+    arr.add(base+'2')
+
+    // console.log(arr)
+
+    return arr
+    
+    
+}
+
+
+// releaseNotes(['C#','maj7/B'])
 
 function combine(c1,c2){
     c1 = JSON.stringify(c1).split(',')
@@ -1449,6 +1646,8 @@ function findTriad(res,resM=[]){
 
 
 }
+
+
 
 
 </script>
