@@ -17,7 +17,7 @@
 <html lang="en">
     <script src="./js/harmony.js"></script>
     <script src="./js/canvasjs.min.js"></script>
-    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <!-- <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script> -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -357,12 +357,12 @@
     
 //---------------------------------------------------APP MODE------------------------------------------------
 
-const out = ['note','chord']
+const out = ['','chord']
 let output=out[1]
 
 function toggleOutput(val){
     if(val==false)
-        output = 'note'
+        output = ''
     else
         output = 'chord'
 }
@@ -438,8 +438,6 @@ songPlayerVolume.connect(dest)                                  // Record to aud
 // console.log(filterLowerBound)
 // console.log(songPlayerGain)
 
-songPlayer.sync()
-songPlayer.start(0)
 
 
 let dur;
@@ -449,6 +447,8 @@ document.getElementById('seekBar').value=0
 displaySeek(dur,'seekEnd')
 
 function loadTrack(a=0){
+    for(i=0;i<12;i++)
+        KEYS[i][1]=0
     if(a) trackName = document.getElementById('enterName')
     else trackName = document.getElementById('trackName')
     console.log('loaded',trackName.value)
@@ -471,6 +471,7 @@ function loadTrack(a=0){
     })
     Tone.Transport.stop()
 }
+// loadTrack('gravity.mp3')
 
 function highFilterTrack(val){
     filterLowerBound.frequency.value=val
@@ -483,7 +484,7 @@ function lowFilterTrack(val){
 
 function trackGain(val){
     songPlayerGain.gain.value=val
-    console.log(val)
+    // console.log(val)
     document.getElementById('gain').innerHTML=' '+String(val)+' dB'
 }
 
@@ -749,16 +750,14 @@ var chart = new CanvasJS.Chart("chartContainer",{
 });
 
 chart.render();
-var updateInterval = 10;
+var updateInterval = 15;
 
 second =document.getElementById('second')
 
 
 var intervals = 1
 
-
-console.log('chart')
-console.log(chart)
+//-----------------------------------------------------------------------------METHODS------------------------------------------------------------------------------
 
 function changeThreshold(octave,val){
     // console.log('threshold is',B_THRESHOLD)
@@ -801,9 +800,11 @@ function changeStripRegion(octave,endPoint,val){
     }
 }
 
+// ---------------------------------------------------------------------------------------------------------------
+//-----------------------UPDATE FUNCTION------------------------------------------------
 
 let hist = []
-histLength = 30
+histLength = 50
 for(var i=0;i<histLength;i++){
     hist.push(null)
 }
@@ -827,7 +828,7 @@ peakLimit = [
 thresholdLimit = [-60,-55,-50,-50,-45]
 
 PREVCHORD = null
-
+PREVCLUSTER = new Set()
 playAlong = false
 function togglePlayAlong(val){
     // console.log(val)
@@ -837,13 +838,31 @@ function togglePlayAlong(val){
         synth.releaseAll()
 }
 
+PREVCOUNT = 0
+chordGroup = {}
+
+KEYS = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]]
+
+/////////////////
+currentAnalysis = {input:'file',gain:songPlayerGain,alx:songPlayerALX, trackGain: trackGain, DOM: 'trackGain'}
+// currentAnalysis = {input:'mic',gain:micGain,alx:micALX, trackGain: trackGainMic, DOM: 'trackGainMic'}
+
+songPlayer.sync()
+songPlayer.start(0)
+
+/////////////////
+
+//-------------------------------------------DEFINITION-----------------------------------------------------
+
 var alxChart = function(){
     if(Tone.Transport.state!='started') {
         synth.releaseAll()
         return
     }
+
+    intervals++;
     
-    chart.render()
+    // chart.render()
 
     IDEA = 2    
 
@@ -855,247 +874,378 @@ var alxChart = function(){
 
     // document.getElementById('display0').innerHTML = AVERAGE_VOLUME
 
-    if(AVERAGE_VOLUME < -50 && micGain.gain.value <= 5.5){
-        trackGainMic(micGain.gain.value + 0.05)
-        document.getElementById('trackGainMic').value = micGain.gain.value
-        // document.getElementById('gain').innerHTML = songPlayerGain.gain.value+ ' dB'
+
+    //------------------------------------EDIT VOLUME IF TOO SOFT OR LOUD-------------------------------
+
+    if(AVERAGE_VOLUME < -50 && currentAnalysis.gain.gain.value <= 5.5){
+        currentAnalysis.trackGain(currentAnalysis.gain.gain.value + 0.01)
+        document.getElementById(currentAnalysis.DOM).value = currentAnalysis.gain.gain.value
     }
-    if(AVERAGE_VOLUME > -35 && micGain.gain.value >0.2){
-        trackGainMic(micGain.gain.value - 0.05)
-        document.getElementById('trackGainMic').value = micGain.gain.value
-        // document.getElementById('gain').innerHTML = songPlayerGain.gain.value+ ' dB'
+    if(AVERAGE_VOLUME > -35 && currentAnalysis.gain.gain.value >0.2){
+        currentAnalysis.trackGain(currentAnalysis.gain.gain.value - 0.01)
+        document.getElementById(currentAnalysis.DOM).value = currentAnalysis.gain.gain.value
     }
 
-
-    // avgBass = (avgBass * intervals + B_THRESHOLD)/(intervals+1)
-    // avgMid = (avgMid * intervals + M_THRESHOLD)/(intervals+1)
-    // avgHigh = (avgHigh * intervals + H_THRESHOLD)/(intervals+1)
-
+    //--------------------------------------------------------------------------------------------------
     
-    var tops = [[],[],[],[],[]]
+    var tops = [[],[],[],[],[]] // Loudest notes found in the 5 octaves
+    // console.log(currentAnalysis.input == 'mic')
+    if(currentAnalysis.input=='mic')
+        alx = micALX.getValue(); // Frequency graph
+    else
+        alx = songPlayerALX.getValue();
 
-    // console.log(topsB)
-    // console.log("EEE")
-    temp = songPlayerALX.getValue();
     for(var oct=0;oct<5;oct++){
+
         for(let p=octaveRegions[oct].start;p<octaveRegions[oct].end;p++){
-            if(parseInt(p)==dps.length-1) continue
-            // console.log(p)
-            x = dps[p]["x"]
-            if(temp[x]<=-95) continue
+
+            if(parseInt(p)==dps.length-1) continue      // need this to keep the graph stable (visually)
+            
+            x = dps[p]["x"]             // index of frequency
+            if(alx[x]<=-95) continue    // if too soft, don't care about it
                 
-            dps[p]["y"] = temp[x]
+            dps[p]["y"] = alx[x]        // update value if loud enough
             
             if(IDEA==1)
                 check = -45
             if(IDEA==2)
-                check = threshold[oct]
+                check = threshold[oct]  // To add it to the top frequencies, the strength must be greater than the dynamic threshold of the octave
 
-            if(temp[x]>check && x in notes){
-                octave = notes[x][notes[x].length-1]
-                
-                // topsB[octave].push([notes[x],Math.floor(temp[x])])
-                tops[oct].push([notes[x],temp[x]])
-                dps[p]["indexLabel"] = notes[x]
+            if(alx[x]>check && x in notes){         // If the frequency is a note,     
+                tops[oct].push([notes[x],alx[x]])   // Add it to the top-list
+                dps[p]["indexLabel"] = notes[x]     
             }
             else
                 dps[p]["indexLabel"] = ''
         }
+
+        //---------------------------DYNAMIC THRESHOLDS---------------------------------------------
+                // change the threshold of an octave if there are too many peaks, or too few.
+
         if(IDEA==2){
-            if(tops[oct].length > peakLimit[oct].high && threshold[oct] < -25){
+
+            if(tops[oct].length > peakLimit[oct].high && threshold[oct] < -25){     // If the number of peaks is greater than the limit specified, and the threshold is still below -25
                 
                 total = 0
                 for(var i=0;i<tops[oct].length;i++)
                     total+=tops[oct][i][1]
                 
-                avg = Math.floor(total/tops[oct].length)
-                tops[oct] = tops[oct].filter(x=>{return x[1] > avg+8})
+                avg = Math.floor(total/tops[oct].length)                    // Gets average strength of all peaks
+                tops[oct] = tops[oct].filter(x=>{return x[1] > avg+8})      // Keeps only the peaks that have strength > (avg+8)-------8 can be changed--------meant for drums, etc.
 
                 
-                changeThreshold(oct,threshold[oct]+1);
+                changeThreshold(oct,threshold[oct]+1);                      // INCREASE threshold by 1
                 document.getElementById('limit'+String(o)).value=threshold[oct]+1
             }
-            if(tops[oct].length < peakLimit[oct].low && threshold[oct] > thresholdLimit[oct]){
-                changeThreshold(oct,threshold[oct]-1);
+
+            if(tops[oct].length < peakLimit[oct].low && threshold[oct] > thresholdLimit[oct]){// If the number of peaks is smaller than the limit specified, and the threshold is still above the lower limit
+                changeThreshold(oct,threshold[oct]-1);                      // DECREASE threshold by 1
                 document.getElementById('limit'+String(oct)).value=threshold[oct]-1
             }
         }
+        //--------------------------------------------------------------------------------------------------
     }
 
-    // 2 ideas : 
+    // 2 IDEAS : 
     // 1 - don't change thresholds, and find peaks. If there are too many peaks, filter out peaks of peaks, and only if the slope of the peak is steep enough (lol didn't work)
     // 2 - change thresholds and trust it to return the right peaks
 
     
     
-    intervals++;
-    // chart.render()
-    // return
-    // res = decluster(topsB)
-    // res = res.map(x=>x[0].substring(0,x[0].length-1))
-    // hist.unshift(res)
-
+    
+    
     if(IDEA==2){
         // chart.render()
         // return
 
+        // -----------------------------------------GENERATE PEAKS--------------------------------------------------------
+
         results = tops.map(x=>{
-            return decluster(x)
+            return decluster(x)             // Finds all the "significant" peaks in clustered frequencies of 'tops'
         })
+
         for(var i=0;i<5;i++){
-            // if(results[i].length) document.getElementById('display'+String(i)).innerHTML = results[i].map(x=>x[0])
+            // if(results[i].length) 
+            //     document.getElementById('display'+String(i)).innerHTML = results[i].map(x=>x[0])          // Display peak notes
             // else document.getElementById('display'+String(i)).innerHTML = '-'
         }
 
         for(var i=0;i<5;i++){
-            results[i] = results[i].sort((a,b)=>{b[1]-a[1]})
-            // if(results[i].length) document.getElementById('display'+String(i)).innerHTML += Math.floor(results[i][0][1])
+            results[i] = results[i].sort((a,b)=>{b[1]-a[1]})        // Sort all the peaks of an octave by decreasing strengths
+            // if(results[i].length) 
+                // document.getElementById('display'+String(i)).innerHTML += Math.floor(results[i][0][1])
         }
 
-        results = results.filter(x=>{return x.length>0})
+        results = results.filter(x=>{return x.length>0})        // Consider only the octaves which have significant peaks
         // console.log(results)
 
         if(results.length==0) return
 
+        // ---------------------------------------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------
+
+
+        // ----------------------------------CHORD FINDING / SCORING SYSTEM-----------------------------------------------
+
         myArr = new Set()
         for(var i=0;i<results.length;i++){
             for(var j=0;j<results[i].length;j++){
-                myArr.add(results[i][j])
+                myArr.add(results[i][j])                        // Gets all peaks in a set
             }
         }
+
         newdisp = document.getElementById('display5')
-        CHORDS = []
-        for(var n of myArr){
-            BASE = n
-            chordP = new Set()
-            weighted = []
+
+        CHORDS = []     // List of chords found with these results
+
+        for(var n of myArr){    // Try making a chord with every peak note as the ROOT
+
+            // ------------------------------------------Creating chord---------------------------------------------
+
+            BASE = n                
+            root = BASE[0].substring(0,BASE[0].length-1)
+
+            chordP = new Set()      // Progressive notes found with this root
+
+            weighted = []           
 
             for(var m of myArr){
-                temp = (12 + revScale[m[0].substring(0,m[0].length-1)]-revScale[BASE[0].substring(0,BASE[0].length-1)])%12
-                weighted.push([temp, m[1]])
-                chordP.add(temp)
+                m_note = m[0].substring(0,m[0].length-1)
+
+                temp = (12 + revScale[m_note]-revScale[root])%12        // Relative numbered note of m with respect to root
+
+                weighted.push([temp, m[1]])     // Add note number, weight
+                chordP.add(temp)                // Add note number
             }
 
-            // console.log(weighted)
+            // console.log(Array(12).map(x=>null)[0]==null)
             
-            scores = [null,null,null,null,null,null,null,null,null,null,null,null]
+            // -----------------------------------------Scoring chord-----------------------------------------------    (LOWER THE SCORE, BETTER THE CHORD)
+
+            scores = Array(12).map(x=>null)         // To combine repeated notes' strengths
+
             for(var i=0;i<weighted.length;i++){
-                off = weighted[i][0]
-                vol = weighted[i][1]
+
+                off = weighted[i][0]    // offset number
+                vol = weighted[i][1]    // note strength
 
                 if(scores[off]==null){
-                    scores[off] = [off, Math.abs(vol), 1]
+                    scores[off] = [off, Math.abs(vol), 1]       // scores[i] = [i,-35,1]
                 }
                 else
                 {
-                    scores[off][1]+=Math.abs(vol)
-                    scores[off][2]++;
+                    scores[off][1]+=Math.abs(vol)           // add the strength
+                    scores[off][2]++;                       // increase count of number
                 }
             }
 
             for(var i=0;i<12;i++){
                 if(scores[i]==null) continue
 
-                scores[i] = [i,(Math.floor((scores[i][1])/Math.pow(scores[i][2],2)))]
+                scores[i] = [i,(Math.floor((scores[i][1])/Math.pow(scores[i][2],2)))]           // Combined score for a note = (total strength) / (count)^2 ------------ = avg strength / count
             }
 
-            scores = scores.filter(y=>{
-                if(y==null)
-                    return false
-                x = y[0]
-                if(x!=0 && x!=3 && x!=4 && x!=7 && x!=10 && x!=11)
-                    return false
+            // scores = scores.filter(y=>{
+            //     if(y==null)
+            //         return false
+            //     x = y[0]
+            //     if(x!=0 && x!=3 && x!=4 && x!=7 && x!=10 && x!=11)          // Keep only 0,3,4,7,10,11
+            //         return false
 
-                return true
-            })
+            //     return true
+            // })
+
             if(scores.length == 0) continue
+
+            BASE = BASE[0]
+            octave = BASE[BASE.length-1]
+
+            // IMPORTANT: Now, we can find all the chords possible using the notes found, and push them into CHORDS
+
+            // (make the following into a function)
+            bass = root
+            if(results[0][0][1] > -37 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){           // If the lowest bass note is loud enough, and not the same as the root
+                bass=results[0][0][0].substring(0,results[0][0][0].length-1)
+            }
+
+            myChords = []
+            if(chordP.has(0)){
+                // should do anyway
+                len = 1 // number of notes in chord
+                sum0 = scores[0][1]
+                sum = (sum0/(len*len)) * (octave * 50)
+                myChords.push({type: '',score: sum})
+
+                if(chordP.has(7)){
+                    // found a fifth
+                    len = 2
+                    sum7 = sum0 + scores[7][1]
+                    sum = (sum7/(len*len)) * (octave * 15)
+                    myChords.push({type: '5',score: sum})
+
+                    if(chordP.has(3)){
+                        // found a minor triad
+                        len = 3
+                        sum3 = sum7 + scores[3][1]
+                        sum = (sum3/(len*len)) * (octave * 5)
+                        myChords.push({type: 'min',score: sum})
+
+                        if(chordP.has(10)){
+                            // found a m7 chord
+                            len = 4
+                            sum10 = sum3 + scores[10][1]
+                            sum = (sum10/(len*len)) * (octave * 5)
+                            myChords.push({type: 'm7',score: sum})
+                        }
+
+                        if(chordP.has(11)){
+                            // found a mM7 chord
+                            len = 4
+                            sum11 = sum3 + scores[11][1]
+                            sum = (sum11/(len*len)) * (octave * 7)
+                            myChords.push({type: 'mM7',score: sum})
+                        }
+                    }
+
+                    if(chordP.has(4)){
+                        // found a major triad
+                        len = 3
+                        sum4 = sum7 + scores[4][1]
+                        sum = (sum4/(len*len)) * (octave * 5)
+                        myChords.push({type: 'maj',score: sum})
+
+                        if(chordP.has(10)){
+                            // found a 7 chord
+                            len = 4
+                            sum10 = sum4 + scores[10][1]
+                            sum = (sum10/(len*len)) * (octave * 5)
+                            myChords.push({type: '7',score: sum})
+                        }
+
+                        if(chordP.has(11)){
+                            // found a maj7 chord
+                            len = 4
+                            sum11 = sum4 + scores[11][1]
+                            sum = (sum11/(len*len)) * (octave * 10)
+                            myChords.push({type: 'maj7',score: sum})
+                        }
+                    }
+                }
+            }
+            myChords = myChords.map(x => {
+                if(x.root == x.bass)
+                    name = root+x.type
+                else
+                    name = root+x.type+'/'+bass
+                return {
+                    root: root,
+                    type: x.type,
+                    bass: bass,
+                    score: x.score,
+                    name: name
+                }
+            })
+            CHORDS = CHORDS.concat(myChords)
 
             // console.log(BASE[0])
             // console.log(scores)
-            sum=0
-            for(var i=0;scores[i];i++){
-                sum+=scores[i][1]
-            }
-            sum = (sum/scores.length)*(BASE[0][BASE[0].length-1]/2)///(scores.length)
+            // sum=0
+            // for(var i=0;scores[i];i++){
+            //     sum+=scores[i][1]       // Add all scores of notes in chord
+            // }
+
+
+            // --------------------FINAL SCORE--------------------------------------------------------------------
+            
+            // ---------------------------------------------------------------------------------------------------
+
+
             // console.log(sum)
         
             
             // newdisp.innerHTML = ''
 
             // console.log(BASE,chordP)
-            BASE = BASE[0]
-            if(chordP.has(7)){
-                if(chordP.has(4)){
-                    type = 'maj'
-                    if(chordP.has(10))
-                        type ='7'
-                    else if(chordP.has(11))
-                        type = 'maj7'
-                    if(results[0][0][1] > -40 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
-                        type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
-                    }
+            // BASE = BASE[0]
+            
+            // if(chordP.has(7)){
+            //     if(chordP.has(4)){
+            //         type = 'maj'
+            //         if(chordP.has(10))
+            //             type ='7'
+            //         else if(chordP.has(11))
+            //             type = 'maj7'
+            //         if(results[0][0][1] > -40 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
+            //             type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
+            //         }
                     
                     
                 
-                    CHORDS.push([BASE,type,sum])
-                }
-                if(chordP.has(3)){
-                    type = 'min'
-                    if(chordP.has(10))
-                        type ='m7'
-                    else if(chordP.has(11))
-                        type = 'mM7'
-                    if(results[0][0][1] > -40 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
-                        type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
-                    }
+            //         CHORDS.push([BASE,type,sum])
+            //     }
+            //     if(chordP.has(3)){
+            //         type = 'min'
+            //         if(chordP.has(10))
+            //             type ='m7'
+            //         else if(chordP.has(11))
+            //             type = 'mM7'
+            //         if(results[0][0][1] > -40 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
+            //             type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
+            //         }
                     
                     
                     
                 
-                    CHORDS.push([BASE,type,sum])
-                }
+            //         CHORDS.push([BASE,type,sum])
+            //     }
 
-                type='5'
+            //     type='5'
 
-                if(results[0][0][1] > -45 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
-                    type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
-                }
-                CHORDS.push([BASE,type,sum])
+            //     if(results[0][0][1] > -45 && results[0][0][0].substring(0,results[0][0][0].length-1) != BASE.substring(0,BASE.length-1)){
+            //         type+='/'+results[0][0][0].substring(0,results[0][0][0].length-1)
+            //     }
+            //     CHORDS.push([BASE,type,sum])
                 
                 
-            }
+            // }
         }
 
         // CHORDS.sort((a,b)=>{
         //     return (parseInt(a[0][a[0].length-1]) - parseInt(b[0][b[0].length-1]))
         // })
-
+        
+        // console.log(CHORDS)
         CHORDS.sort((a,b)=>{
-            return a[2]-b[2]
+            return a.score - b.score
         })
 
         if(CHORDS.length==0) return
 
         // console.log(CHORDS.filter(x=> x[1][0]!='5')) 
-        if(CHORDS.filter(x=>x[1][0]!='5').length)
-            temp = CHORDS.filter(x=>x[1][0]!='5')[0]   
-        else
-            temp = CHORDS[0]
+        // if(CHORDS.filter(x=>x[1][0]!='5').length)
+        //     temp = CHORDS.filter(x=>x[1][0]!='5')[0]   
+        // else
+        //     temp = CHORDS[0]
 
-        hist.unshift(temp)
+        hist.unshift(CHORDS[0])
         // newdisp.innerHTML = temp
 
         counts = {}
         
-        for(var i=0;i<histLength;i++){ if(hist[i]==null) break
-            // x = hist[i][0].substring(0,hist[i][0].length-1)
-            x = [hist[i][0].substring(0,hist[i][0].length-1) , hist[i][1]]
+        for(var i=0;i<histLength;i++){ 
+            
+            if(hist[i]==null) break
+            
+            x = hist[i].name
             // console.log(x)
-            if(x[0]+x[1] in counts){
-                counts[x[0]+x[1]][0]++
+            if(x in counts){
+                counts[x].num++
             }
             else{
-                counts[x[0]+x[1]] = [1,[x[0],x[1]]]
+                counts[x] = {
+                    num: 1,
+                    chord: hist[i]
+                }
             }
         }
         // console.log(counts)
@@ -1104,8 +1254,8 @@ var alxChart = function(){
         m2=null
         for(c in counts){
             // console.log(c)
-            if(m==null || counts[c][0]>counts[m][0]){
-                m2=m
+            if(m==null || counts[c].num>counts[m].num){
+                m2 = m
                 m = c
             }
                 
@@ -1114,21 +1264,22 @@ var alxChart = function(){
 
         if(m==null) return
 
-        
-        if(m2==null) return
-
-        if(counts[m2][0]<histLength/5) m2=null
+        if(m2 && counts[m2][0]<histLength/5) 
+            m2=null
 
         // final = combine(m,m2)
-        final = counts[m][1]
-        root = final[0]
-        type = final[1]
+        final = counts[m].chord
+
+        root = final.root
+        type = final.type
+        bass = final.bass
         // console.log(type.split('/'))
         // console.log(final)
         
-        if(type=='5' && PREVCHORD && root == PREVCHORD[0] && PREVCHORD[1][0]=='m'){
-            return
+        if( (type=='5' || type=='') && PREVCHORD && root == PREVCHORD.root && (PREVCHORD.type[0]=='m' || PREVCHORD.type[0]=='7')){
+            final = PREVCHORD
         }
+
         if(playAlong){
             NOTES1 = getNotes(PREVCHORD)
             // for(var n in NOTES.values())
@@ -1141,7 +1292,7 @@ var alxChart = function(){
             for(var x of NOTES1) union.add(x)
             for(var x of NOTES2) union.add(x)
 
-            console.log(union)
+            // console.log(union)
 
             for(var x of union){
                 if(NOTES1.has(x) && NOTES2.has(x)) continue
@@ -1160,8 +1311,111 @@ var alxChart = function(){
         // for(var i=0;NOTES[i];i++)
         //     synth.triggerAttack(NOTES[i])
         // attackNotes(final)
-        PREVCHORD = final
-        newdisp.innerHTML = PREVCHORD[0]+PREVCHORD[1]
+
+        possible = findKeys(final)
+        for(x of possible)
+            KEYS[x][1]++;
+
+
+        // final = current chord
+        // PREVCHORD = previous chord
+
+        // if current "goes with" the previous one, add it to the group
+        // if not, then process the last group
+        //      -> find the count for each root
+        //      -> find the winning chord of the root
+        //      -> display total count with winning chord
+
+        m = null
+        m2=null
+        for(i=0;i<12;i++){
+            if(m==null || m[1]<KEYS[i][1]){
+                // m2=m
+                m = KEYS[i]
+            }
+            if((m2==null || m2[1]<KEYS[i][1]) && m!=KEYS[i])
+                m2 = KEYS[i]
+            
+        }
+        document.getElementById('display3').innerHTML = 'Most likely keys: ' + scale[m[0]] +', ' + scale[m2[0]]
+        
+        if(PREVCHORD && final.name==PREVCHORD.name){
+            PREVCOUNT++;
+            // newdisp.innerHTML += '+'
+        }
+        else{
+            
+            // if(PREVCHORD && (Object.keys(chordGroup).length==0 || goesWith(final,PREVCLUSTER)==true)){
+            //     console.log(PREVCLUSTER)
+            //     if(PREVCHORD.root in chordGroup)
+            //         chordGroup[PREVCHORD.root].push(
+            //             {
+            //                 chord: PREVCHORD.name,
+            //                 count: PREVCOUNT
+            //             }
+            //         )
+            //     else
+            //         chordGroup[PREVCHORD.root] = [
+            //             {
+            //                 chord: PREVCHORD.name,
+            //                 count: PREVCOUNT
+            //             }
+            //         ]
+                
+            //     // PREVCHORD = calculateCluster(chordGroup)
+            // }
+
+            // else{
+
+            //     MAX = null
+            //     for(r in chordGroup){
+            //         // root = r
+            //         total = 0
+            //         for(var i=0;chordGroup[r][i];i++)
+            //             total += chordGroup[r][i].count
+            //         if(MAX==null || MAX[1]<total)
+            //             MAX = [r,total]
+            //     }
+
+            //     m = null
+            //     if(MAX){
+            //         for(var x=0;chordGroup[MAX[0]][x];x++){
+            //             if(m==null || m[1] < chordGroup[MAX[0]][x].count)
+            //                 m = [chordGroup[MAX[0]][x].chord, chordGroup[MAX[0]][x].count]
+            //         }
+
+            //         newdisp.innerHTML += '--------------- ' + m[0] +'<br>'+ String(m[1]) + '<br>'
+            //     }
+            //     chordGroup = {}
+            //     PREVCLUSTER = new Set()
+            //     if(PREVCHORD)
+            //         chordGroup[PREVCHORD.root] = [
+            //                 {
+            //                     chord: PREVCHORD.name,
+            //                     count: PREVCOUNT
+            //                 }
+            //             ]
+                
+            //     // PREVCHORD = calculateCluster(chordGroup)
+            // }
+            
+
+            // console.log(final,PREVCHORD, final==PREVCHORD)
+            // newdisp.innerHTML += ' '+String(PREVCOUNT) + '<br>'
+            PREVCOUNT=1
+            PREVCHORD = final
+            temp = KEYS
+            console.log(temp)
+            // document.getElementById('display4').innerHTML = String()
+            newdisp.innerHTML = PREVCHORD.name + ' '
+            
+        }
+            
+
+        // if(intervals%1000==0){
+        //     intervals = 0
+        //     newdisp.innerHTML = ''
+        // }
             
 
         // chordHist.unshift(final)
@@ -1248,61 +1502,121 @@ var alxChart = function(){
         }
 
     }
-    chart.render()
+    // chart.render()
 
 }
 
 setInterval(function(){alxChart()}, updateInterval);
 
+// scaleNotes = new Set([3,6,10])
+
+chordExpansion = {
+    'maj':[0,4,7],
+    'min':[0,3,7],
+    '7':[0,4,7,10],
+    'maj7':[0,4,7,11],
+    'm7':[0,3,7,10],
+    'mM7':[0,3,7,11],
+    '5':[0,7],
+    '':[0]
+}
+
+function findKeys(final){
+    exp = new Set(chordExpansion[final.type].map(x=>{
+        return (x+revScale[final.root]) % 12
+    }))
+    // console.log(exp)
+    res = new Set()
+    for(var k=0;k<12;k++){
+        if(exp.has((k+1)%12) || exp.has((k+3)%12) || exp.has((k+6)%12) || exp.has((k+10)%12))
+            continue
+        res.add(k)
+    }
+    // console.log(res)
+    return res
+}
+
+findKeys({root:'G#',type:'maj'})
+
+
+
+function goesWith(final, cluster){
+    console.log('goesWith')
+    base = revScale[final.root]
+    chord = final.type
+    exp = chordExpansion[chord].map(x=>{
+        return (x+base) % 12
+    })
+    if(cluster.values().length)
+        for(var i=0;exp[i];i++){
+            if(cluster.has(exp[i])==false){
+                console.log(chord + ' doesnt go with ')
+                console.log(cluster)
+                return false
+            }
+        }
+    
+    console.log(chord + ' goes with ')
+    console.log(cluster)
+    if(exp.length > cluster.values().length){
+        PREVCLUSTER = new Set(exp)
+        return true
+    }
+    PREVCLUSTER =  cluster
+    return true
+
+}
+
 
 function getNotes(chord){
-    // format = ['C#','maj7/B']
+    
 // console.log(chord)
     if(chord==null)
         return new Set()
-    root = chord[0]
-    temp = chord[1].split('/')
-    type = temp[0]
-    if(temp[1])
-        base = temp[1]
-    else
-        base = root
+    root = chord.root
+
+    type = chord.type
+    base = chord.bass
     
     // base += '2'
-    arr = new Set()
-    arr.add(root+'3')
+    // arr = new Set()
+    // arr.add(root+'3')
+
+    arr = new Set( chordExpansion[type].map(x=>{
+        return scale[ ( x + revScale[root] ) % 12 ]+'3'
+    }))
     
-    if(type=='5'){
-        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
-    }
-    else if(type=='maj'){
-        arr.add(scale[ (  revScale[root] + 4    ) % 12 ]+'3')
-        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
-    }
-    else if(type=='maj7'){
-        arr.add(scale[ (  revScale[root] + 4    ) % 12 ]+'3')
-        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
-        // arr.add(scale[ (  revScale[root] + 11    ) % 12 ]+'3')
-    }
-    else if(type=='7'){
-        arr.add(scale[ (  revScale[root] + 4    ) % 12 ]+'3')
-        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
-        // arr.add(scale[ (  revScale[root] + 10    ) % 12 ]+'3')
-    }
-    else if(type=='min'){
-        arr.add(scale[ (  revScale[root] + 3    ) % 12 ]+'3')
-        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
-    }
-    else if(type=='m7'){
-        arr.add(scale[ (  revScale[root] + 3    ) % 12 ]+'3')
-        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
-        // arr.add(scale[ (  revScale[root] + 10    ) % 12 ]+'3')
-    }
-    else if(type=='mM7'){
-        arr.add(scale[ (  revScale[root] + 3    ) % 12 ]+'3')
-        arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
-        // arr.add(scale[ (  revScale[root] + 11    ) % 12 ]+'3')
-    }
+    // if(type=='5'){
+    //     arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    // }
+    // else if(type=='maj'){
+    //     arr.add(scale[ (  revScale[root] + 4    ) % 12 ]+'3')
+    //     arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    // }
+    // else if(type=='maj7'){
+    //     arr.add(scale[ (  revScale[root] + 4    ) % 12 ]+'3')
+    //     arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    //     arr.add(scale[ (  revScale[root] + 11    ) % 12 ]+'3')
+    // }
+    // else if(type=='7'){
+    //     arr.add(scale[ (  revScale[root] + 4    ) % 12 ]+'3')
+    //     arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    //     arr.add(scale[ (  revScale[root] + 10    ) % 12 ]+'3')
+    // }
+    // else if(type=='min'){
+    //     arr.add(scale[ (  revScale[root] + 3    ) % 12 ]+'3')
+    //     arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    // }
+    // else if(type=='m7'){
+    //     arr.add(scale[ (  revScale[root] + 3    ) % 12 ]+'3')
+    //     arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    //     arr.add(scale[ (  revScale[root] + 10    ) % 12 ]+'3')
+    // }
+    // else if(type=='mM7'){
+    //     arr.add(scale[ (  revScale[root] + 3    ) % 12 ]+'3')
+    //     arr.add(scale[ (  revScale[root] + 7    ) % 12 ]+'3')
+    //     // arr.add(scale[ (  revScale[root] + 11    ) % 12 ]+'3')
+    // }
 
     
     arr.add(base+'2')
