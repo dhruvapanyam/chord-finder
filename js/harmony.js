@@ -58,6 +58,7 @@ function harmonize(notes){
     // })
 
     progs = createProgression(notes)
+    console.log('bru')
     console.log(progs)
     rand = progs[Math.floor(Math.random()*progs.length)]
     // console.log('Picked key of',scale[progs[rand][0]])
@@ -125,8 +126,8 @@ function createProgression(notes){
     //     if(scaleNotes.has(x))
     //         console.log(x)
     // }
-
-    // console.log(notes)
+    console.log('hi?')
+    console.log(notes)
 
     poss = []
     for(var x of Array(12).keys()){

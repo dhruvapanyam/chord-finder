@@ -459,7 +459,7 @@ for(var i=0;i<cols.length;i++){
 }
 
 var pressed = {}
-const keyset = ['a','s','d','f','g','h','j','k','q','w','e','r','t','y','u','z','x','v','b','n','2','3','5','6','7']
+const keyset = ['z','s','x','d','c','v','g','b','h','n','j','m',',','y','7','u','8','i','o','0','p','-','[','=',']','\\','1','q','w','3','e','4','r','5','t','l','.',';','/']
 for(var i=0;i<keyset.length;i++){
     pressed[keyset[i]]=0
 }
@@ -475,10 +475,17 @@ keys.addEventListener('mouseup',function(event){
     synth.triggerRelease(event.target.id);
 })
 var map = {
-    'q':'C3','w':'D3','e':'E3','r':'F3','t':'G3','y':'A3','u':'B3',
-    '2':'C#3','3':'D#3','5':'F#3','6':'G#3','7':'A#3',
-    'a':'C4','s':'D4','d':'E4','f':'F4','g':'G4','h':'A4','j':'B4','k':'C5',
-    'z':'C#4','x':'D#4','v':'F#4','b':'G#4','n':'A#4'};
+    'z':'C3','s':'C#3','x':'D3','d':'D#3','c':'E3','v':'F3','g':'F#3','b':'G3','h':'G#3','n':'A3','j':'A#3','m':'B3',',':'C4',
+                                '1':'D#3','q':'E3','w':'F3','3':'F#3','e':'G3','4':'G#3','r':'A3','5':'A#3','t':'B3',',':'C4',
+    'y':'C4','7':'C#4','u':'D4','8':'D#4','i':'E4','o':'F4','0':'F#4','p':'G4','-':'G#4','[':'A4','=':'A#4',']':'B4','\\':'C5',
+             'l':'C#4','.':'D4',';':'D#4','/':'E4',
+
+
+    // 'q':'C3','w':'D3','e':'E3','r':'F3','t':'G3','y':'A3','u':'B3',
+    // '2':'C#3','3':'D#3','5':'F#3','6':'G#3','7':'A#3',
+    // 'a':'C4','s':'D4','d':'E4','f':'F4','g':'G4','h':'A4','j':'B4','k':'C5',
+    // 'z':'C#4','x':'D#4','v':'F#4','b':'G#4','n':'A#4'
+};
 console.log(map)
 for(let key in map){
     var but = document.getElementById(map[key])
@@ -497,15 +504,10 @@ function toggleKeyboard(){
 }
 
 document.addEventListener('keydown',function(event){
-    if(event.key=='-'){
-        console.log('I hear you')
-        document.getElementById('detectedNote').innerHTML = '<br><br>' + document.getElementById('detectedNote').innerHTML
-    }
-    if(event.key=='='){
-        console.log('I hear you')
-        document.getElementById('detectedNote').innerHTML = ''
-    }
-    if(event.key==' ' || event.key=='.'){
+
+    if(event.key==' '){
+        if(currentAnalysis.type=='mic') return
+
         if(Tone.Transport.state=='started'){
             // updateInterval = 10000
             Tone.Transport.pause();
@@ -518,16 +520,23 @@ document.addEventListener('keydown',function(event){
             // recorder.start()
         }
     }
-    if(event.key=='\\'){
+    if(event.key=='2'){
+        toggleGraphDisplay(!DISPLAY_GRAPH)
         if(mic.state=="stopped"){
+            // NOTES_RECORDING = []
             mic.open()
             console.log(mic)
         }
-        else
+        else{
+            console.log(NOTES_RECORDING)
+            playNotesRecorded()
             mic.close()
+        }
     }
 
-    if(event.key=='0'){
+    if(event.key=='a') playNotesRecorded()
+
+    if(event.key=='`'){
         var temp = synthALX.getValue()
         max=0
         min=0
@@ -541,7 +550,7 @@ document.addEventListener('keydown',function(event){
     
     if(!(event.key in pressed)) return 0;
     if(!pressed[event.key]){
-        synth.triggerAttack(map[event.key])
+        sampler.triggerAttack(map[event.key])
         pressed[event.key]=1
         document.getElementById(map[event.key]).style.backgroundColor="#aaa"
         
@@ -551,7 +560,7 @@ document.addEventListener('keydown',function(event){
 document.addEventListener('keyup',function(event){
     if(!(event.key in pressed)) return 0;
     pressed[event.key]=0
-    synth.triggerRelease(map[event.key])
+    sampler.triggerRelease(map[event.key])
     document.getElementById(map[event.key]).style.backgroundColor="#ccc"
 })
 
