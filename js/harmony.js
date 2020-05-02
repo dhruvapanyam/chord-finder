@@ -1,186 +1,243 @@
-const chords = {
+const ACC = 100, AVG = 100
+const notes = {
+    24:'C1',26:'C#1',27:'D1',29:'D#1',31:'E1',32:'F1',34:'F#1',36:'G1',39:'G#1',41:'A1',43:'A#1',46:'B1',
+    49:'C2',51:'C#2',55:'D2',58:'D#2',61:'E2',65:'F2',69:'F#2',73:'G2',77:'G#2',82:'A2',87:'A#2',92:'B2',
+    97:'C3',103:'C#3',109:'D3',114:'D#3',122:'E3',130:'F3',137:'F#3',146:'G3',154:'G#3',163:'A3',173:'A#3',183:'B3',
+    194:'C4',206:'C#4',218:'D4',231:'D#4',245:'E4',259:'F4',275:'F#4',291:'G4',309:'G#4',327:'A4',346:'A#4',367:'B4',
+    389:'C5',412:'C#5',436:'D5',462:'D#5',490:'E5',519:'F5',550:'F#5',583:'G5',617:'G#5',654:'A5',693:'A#5',734:'B5'
+}
+
+// console.log(notes[179])
+
+
+const scale = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']
+const revScale = {'C':0,'C#':1,'D':2,'D#':3,'E':4,'F':5,'F#':6,'G':7,'G#':8,'A':9,'A#':10,'B':11}
+
+const tension = {                   //equals amount of energy released if paired with BASE
+    0:20,           //MAX
+    1:13,
+    2:5,
+    3:16.5,
+    4:18,
+    5:16,
+    6:1,
+    7:19,
+    8:15,
+    9:17.5,
+    10:8,
+    11:8
+}
+
+// Okay, let's think it out
+// 
+// So if I want to create a progression, I can't just make random chords
+// There needs to be a tension-home thing
+// So, I list tension chords and what they go with
+// Then I list home chords, and how homely?
+// 
+// For example, 
+// I is most homely
+// vi is also homely
+// III is lots of tension (goes with vi)
+// V is tension
+// IV is sorta homely
+// so on...
+//
+// And then, depending on the type of chord they want to make, I pick the level of tension?
+// Light = not much -> 'I-IV-IV-I' (or just 'I-I-I-I' lol)
+// Heavy = much more-> 'I-III-vi-V'
+// 
+// 
+// Home notes are    I, III, IV, V
+// Tension notes are VII, IV, II, VI
+//
+// I don't want to assign scores to them myself, but I kinda have to, no? idk
+// 
+// So, to start, let's say: you start off on a home/semi-home, then you go through tension, and you reach I
+
+const chordTypes = {
     major:[0,4,7],
     minor:[0,3,7]
 }
 
-const progressions = new Set()
-
-const scaleNotes = new Set()
-for(let x of [0,2,4,5,7,8,9,11])
-    scaleNotes.add(parseInt(x))
-
-progressions.add(
-    [[0,'M'],[7,'M'],[9,'m'],[5,'M']],
-    [[0,'M'],[5,'M'],[9,'m'],[7,'M']],
-    [[0,'M'],[9,'m'],[5,'M'],[7,'M']],
-    [[5,'M'],[7,'M'],[0,'M'],[0,'M']],
-    [[9,'m'],[5,'M'],[0,'M'],[7,'M']],
-    [[7,'M'],[9,'m'],[5,'M'],[0,'M']],
-    [[5,'M'],[0,'M'],[7,'M'],[9,'m']],
-
-    [[2,'m'],[7,'M'],[0,'M'],[0,'M']],
-    [[0,'M'],[5,'M'],[2,'m'],[7,'M']],
-    [[0,'M'],[5,'M'],[0,'M'],[7,'M']],
-    [[0,'M'],[4,'M'],[9,'m'],[5,'M']],
-    [[9,'m'],[7,'M'],[5,'M'],[4,'M']],
-    [[2,'m'],[9,'m'],[7,'M'],[0,'M']],
-    [[2,'m'],[0,'M'],[7,'M'],[9,'m']],
-    
-)
-
-function translateProgression(prog){
-    chordList = []
-    
-    for(let [note,chord] of prog){
-        // console.log([note,chord])
-        if(chord=='M'){
-            chordList.push(chords.major.map(function(num){
-                return (num + note) % 12
-            }))
-        }
-        else{
-            chordList.push(chords.minor.map(function(num){
-                return (num + note) % 12
-            }))
-        }
-    }
-    return chordList
+function chordInKey(root, type){
+    return chordTypes[type].map(x=>(x+root)%12)
 }
 
+const roman = {
+    'i':0,
+    'ii':2,
+    'iii':4,
+    'iv':5,
+    'v':7,
+    'v#':8,
+    'vi':9,
+    'vii':11
+}
 
-function harmonize(notes){
-    // chordList = translateProgression(prog)
-
-    // chordList = chordList.map(function(arr){
-    //     return arr.map(function(val){
-    //         return (val + base) % 12
-    //     })
-    // })
-
-    progs = createProgression(notes)
-    console.log('bru')
-    console.log(progs)
-    rand = progs[Math.floor(Math.random()*progs.length)]
-    // console.log('Picked key of',scale[progs[rand][0]])
-    chordList = rand[1]
-
-    let harmony = []
-    for(var i=0;i<notes.length;i++){
-        let harm = chordList[i][Math.floor(Math.random()*chordList[i].length)]
-        while(harm==notes[i])
-            harm = chordList[i][Math.floor(Math.random()*chordList[i].length)]
+function readChord(notation){
+    base = notation.toLowerCase()
+    if(!(base in roman))
+        return null
+    if(base!=notation)
+        type = 'major'
+    else
+        type = 'minor'
         
-            harmony.push(harm)
+
+
+    root = roman[base]
+    chord = chordInKey(root, type)
+    // console.log(notation)
+    return [chord,type]
+}
+
+function readNotation(notation){
+    chords = notation.split('-')
+    prog = []
+    for(i=0;chords[i];i++){
+        chord = readChord(chords[i])
+        if(chord==null) return null
+
+        prog.push(chord)
     }
-
-    console.log(notes,harmony)
-
+    // console.log(notation)
+    // console.log(prog)
+    return prog
 }
 
-function chordInScale(chord,scale){
-    // [0,5,8], 5
-
-    let offset = scale // 5
-
-    chord = chord.map(function(note){
-        return (12+note-offset)%12
-        // [4,8,11]
-    })
-
-    for(var note of chord)                  // 0 5 8
-        if(scaleNotes.has(note)==false)     //
-            return false
-    return true
+const chordsWithNote = {
+    0: ['I','IV','vi'],
+    2: ['ii','V'],
+    4: ['I','iii','III','vi'],
+    5: ['ii','IV'],
+    7: ['I','iii','V'],
+    8: ['III','iv'],
+    9: ['ii','IV','vi'],
+    11: ['iii','III','V']
 }
 
-function noteChords(note,scale){
-    // given a note and a scale, create possible chords in the scale involving the note 
-    // suppose 0, 5
-    console.log('sss')
-    
-    list = []
-    
-    for(var x of Array(12).keys()){             // x = 0,1,2,...,11
-        if(scaleNotes.has((x+12-scale)%12)==false)  // 
-            continue
+const notInScale = [1,3,6,10]
 
-        for(chord in chords){
-            tempChord = chords[chord].map(n => {    // 0,4,7
-                return (n+x)%12
-            })
-            if(tempChord.includes(note)==false)
-                continue
-                
-            if(chordInScale(tempChord,scale)){
-                list.push(tempChord)
-                console.log(tempChord)
-            }
-        }
-    }
-    return list
-
-}
-
-function createProgression(notes){
-    // for(var x of Array(12).keys()){
-    //     if(scaleNotes.has(x))
-    //         console.log(x)
-    // }
-    console.log('hi?')
-    console.log(notes)
-
-    poss = []
-    for(var x of Array(12).keys()){
-        // console.log(x)
-        flag=1
-        for(var k of notes)
-            if(scaleNotes.has((12 + k - x) % 12)==false){
-                // console.log('doesnt work because ',k)
-                flag=0
+function findKeysWithNotes(notes){
+    // Format = [0,1,5,3,..]
+    keys = []
+    for(var i=0;i<12;i++){
+        flag = 1
+        newNotes = new Set(notes.map(x=>(12+x-i)%12))
+        for(note of notInScale){
+            note = parseInt(note)
+            if(newNotes.has(note))
+            {
+                flag = 0
                 break
             }
+        }
         if(flag)
-            poss.push(x)
+            keys.push(i)
     }
-    
-
-    master = []
-    console.log('Possible kys:',poss)
-    for(var x of poss){
-        console.log(scale[x])
-        res = []
-
-        for(note of notes){
-            
-                res.push(noteChords(note,x))
-                console.log('noteChords(',note,x,') = ',res[res.length-1])
-        }
-        
-        if(res.length<notes.length)   continue
-        master.push([x,res])
-        // console.log(res)
-    }
-    // master = master.filter(function(x){
-    //     for(var i=0;i<x[1].length;i++)
-    //         if(x[1][i].length==0)
-    //             return false
-
-    //     return true
-    // })
-    console.log(master)
-
-    ans = master.map(function(keyArr){
-        temp = []
-        for(var i=0;i<keyArr[1].length;i++){
-            rand = keyArr[1][i][(Math.floor(Math.random()*keyArr[1][i].length))].map(x=>scale[x])
-            temp.push(rand)
-        }
-        return [keyArr[0],temp]
-    })
-
-    
-    // console.log(notes)
-    // console.log(master)
-    
-    return ans
+    // console.log(keys)
+    return keys
 }
+
+
+// So, basically, 'I' or 'vi' has to be there at least once
+
+// Given a set of 4 notes from {0,2,4,5,7,9,11}, find progression 
+
+function createChordsWithNotes(notes){
+    
+    raw = notes
+    notes = raw.map(x=>revScale[x])
+    // Format = [0,4,7,2,1,...] in C-scale
+    if(notes.length%4 != 0) return null
+
+    keys = findKeysWithNotes(notes)
+
+    if(keys.length==0){
+        console.log('No key found')
+        return null
+    }
+
+    myKey = keys[Math.floor(Math.random()*keys.length)]
+    console.log('Chosen key:',scale[myKey])
+
+    notes = notes.map(x=>(12+x-myKey)%12)
+
+    chunks = 0
+    prog = ''
+    
+    while(chunks < Math.ceil(notes.length / 4)){
+        temp = notes
+        // console.log(temp.slice(4,4))
+        group = temp.slice(4*chunks, 4*(chunks+1))
+        // console.log(group)
+        mandatory = {'I':[],'vi':[]}
+        for(let i=0;i<4;i++){
+            // console.log(group[i])
+            for(j=0;j<chordsWithNote[group[i]].length;j++){
+                crd = (chordsWithNote[group[i]][j])
+                if(crd == 'I')
+                    mandatory['I'].push(i)
+                if(crd == 'vi')
+                    mandatory['vi'].push(i)
+            }
+        }
+        // console.log(mandatory)
+        myArr = []
+        for(c of mandatory['I'])
+            myArr.push(['I',c])
+    
+        for(c of mandatory['vi'])
+            myArr.push(['vi',c])
+    
+        // console.log(myArr)
+        format = [null,-1]
+        if(myArr.length) format = myArr[Math.floor(Math.random()*myArr.length)]
+    
+    
+        for(let i=0;i<4;i++){
+            if(i==format[1]){
+                prog += format[0] + '-'
+            }
+            else{
+                note = group[i]
+                choose = chordsWithNote[note][Math.floor(Math.random()*chordsWithNote[note].length)]
+                
+                prog += choose + '-'
+            }
+        }
+    
+        // console.log(prog)
+        chunks++;
+    }
+    prog = prog.substring(0,prog.length-1)
+        
+
+
+    // Need to select one out of the 8 options if possible
+    // ('I' in any of the 4 positions, or 'vi')
+
+    
+    
+    console.log(raw)
+    console.log(prog)
+
+    read = readNotation(prog)
+    res = ''
+    for(var c=0;c<read.length;c++){
+        root = scale[(myKey+read[c][0][0])%12]
+        type = read[c][1]
+
+        res += root + type.substring(0,3) + '-'
+    }
+    res = res.substring(0,res.length-1)
+    console.log(res)
+
+    return [myKey,read]
+
+}
+
+// createChordsWithNotes(['A#','C','A#','C','G#','G#','A#','D#'])
+
+

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<style>
+#keyboard-wrapper{
+    width: 100%;
+    height: 30%;
+}
+.column {
+  float: left;
+  width: 5%;
+  padding: 10px;
+  height: 300px; /* Should be removed. Only for demonstration */
+  border-color: black;
+  border-style:solid;
+  text-align: center;
+}
+.column1 {
+  float: left;
+  width: 2.2%;
+  padding: 10px;
+  height: 150px; /* Should be removed. Only for demonstration */
+  border-color: black;
+  border-style:solid;
+  text-align: center;
+}
+.column2 {
+  float: left;
+  width: 1.2%;
+  padding: 10px;
+  height: 150px; /* Should be removed. Only for demonstration */
+  /* border-color: black;
+  border-style:solid; */
+  /* background-color: white; */
+  text-align: center;
+}
+</style>
+<html lang="en">
+    <script src="./js/tone.js"></script>
+    <script src="./js/canvasjs.min.js"></script>
+
+    <!-- <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script> -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div class="row" id="keyboard-wrapper" style="display: inline-block;"> 
+        <div class="row">
+            <label>Play along? </label>
+            <input type="checkbox" onclick="togglePlayAlong(this.checked)">
+        </div>
+        <div class="row" style="padding: 20px;">
+            <label>SELECT INPUT DEVICE:</label><br>
+            <input type="radio" id="micInput" name="inputType" value="micInput" onclick="changeInput('mic')">
+            <label for="micInput">Mic</label><br>
+            <input type="radio" id="fileInput" name="inputType" checked value="fileInput" onclick="changeInput('file')">
+            <label for="fileInput">File</label><br>
+        </div>
+        <div class="row"><button onclick="toggleKeyboard()"><h2>C Scale Keyboard lol</h2></button></div>
+        </div>
+        <div class="row" id="keyboard" style="display: none">
+            
+            <div class="row">
+                <div class="column piano" id="C3" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="D3" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="E3" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="F3" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="G3" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="A3" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="B3" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="C4" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="D4" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="E4" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="F4" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="G4" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="A4" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="B4" style="background-color:#ccc;">
+                </div>
+                <div class="column piano" id="C5" style="background-color:#ccc;">                 
+                </div>
+            </div>
+
+        </div>
+        
+        
+    </div>
+    
+    <div class="row" style="padding-top: 30px;" id="audioWrapper">
+        <!-- <div class="row"><input type="checkbox"  oninput="toggleOutput(this.checked)"></div> -->
+        
+        <div class="row">
+            <select id="trackName">
+                <option value="harryFalling.mp3">Harry Styles - Falling</option>
+                <option value="thatsus.mp3">Anson Seabra - That's Us</option>
+                <option value="wonderful.m4a">Dhruva Panyam - Wonderful World</option>
+                <option value="perfect.mp3">Ed Sheeran - Perfect</option>
+                <option value="allofme.mp3">John Legend - All Of Me</option>
+                <option value="adele.mp3">Adele - Someone Like You</option>
+                <option value="apocalypse.mp3">Cigarettes after Sex - Apocalypse</option>
+                <option value="stayFull.mp3">Rihanna - Stay</option>
+                <option value="stay.mp3">Rihanna - Stay (Kar)</option>
+                <option value="realFriends.mp3">Camila Cabello - Real Friends</option>
+                <option value="kodaline.m4a">Kodaline - All I Want</option>
+                <option value="gravity.mp3">John Mayer - Gravity</option>
+                <option value="yours.mp3">Jason Mraz - I'm Yours</option>
+                <option value="noWay.m4a">Fifth Harmony - No Way</option>
+                <option value="perfect.mp3">Ed Sheeran - Perfect</option>
+                <option value="allofme.mp3">John Legend - All Of Me</option>
+                <option value="dpan.mp3">When I Was Your Man</option>
+                <option value="stars.mp3">Stars</option>
+                <option value="run.mp3">Run</option>
+                <option value="adele.mp3">Adele - Someone Like You</option>
+                <option value="apocalypse.mp3">Cigarettes after Sex - Apocalypse</option>
+                <option value="stayFull.mp3">Rihanna - Stay</option>
+                <option value="stay.mp3">Rihanna - Stay (Kar)</option>
+                <option value="harryFalling.mp3">Harry Styles - Falling</option>
+                <option value="falling.mp3">Falling</option>
+                <option value="emajor.mp3">E Major</option>
+                <option value="stay.m4a">Sam Smith - Stay With Me</option>
+                <option value="realFriends.mp3">Camila Cabello - Real Friends</option>
+                <option value="kodaline.m4a">Kodaline - All I Want</option>
+                <option value="voiceNoteC4.wav">Me singing C4</option>
+                
+            </select>
+            <input type="button" value="Load" onclick="loadTrack()">
+            <input id="enterName">
+            <input type="button" value="Search" onclick="loadTrack(1)">
+        </div>
+
+
+        <div class="row">
+            <div style="display:inline-block; margin: 1rem;">
+                <audio id="recordedAudio" controls></audio>
+            </div>
+                
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b>VOLUME: </b>
+                        <span style="float: right;" id='volume'>1.0 dB</span>
+                        </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 10%;" type="range" min=0 max=6 value=1 step=0.001 oninput="outputGain(this.value)">
+                        <!-- <span id='seekEnd'>-:-- </span> -->
+                    </p>
+                </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <p style="font-size: 50px;" id="loadedTrack"></p>
+                </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> SEEK: </b>
+                        <span style="float: right;" id='seek'>0:00 </span>
+                        </div>
+                        &nbsp;&nbsp;
+                        <input id="seekBar" style="width: 70%; " type="range" min=0 max=120 value=0 oninput="seekTime(this.value)">
+                        <span id='seekEnd'>-:-- </span>
+                    </p>
+                </div>
+        </div>
+        <div class="row"  style="padding-top: 30px;"><h1>Audio Effects</h1></div>   
+        <div class="row">
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> FILTER UP: </b>
+                        <span style="float: right;" id='lowpass'>0 Hz</span>
+                    </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 70%; " type="range" min=0 max=10000 value=0 oninput="highFilterTrack(this.value)">
+                        
+                    </p>
+                </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> FILTER DOWN: </b>
+                        <span style="float: right;" id='highpass'>10000 Hz </span>
+                    </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 70%;" type="range" min=0 max=10000 value=10000 oninput="lowFilterTrack(this.value)">
+                        <!-- <span id='seekEnd'>-:-- </span> -->
+                    </p>
+                </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> GAIN: </b>
+                        <span style="float: right;" id='gain'>1.0 dB</span>
+                    </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 70%;" id="trackGain" type="range" min=0 max=6 value=1 step=0.001 oninput="trackGain(this.value)">
+                        <!-- <span id='seekEnd'>-:-- </span> -->
+                    </p>
+                </div>
+                <div style="display: inline-block ; width: 100%;">
+                    <div style="width: 10%; display: inline-block;">
+                    <p><b> MIC GAIN: </b>
+                        <span style="float: right;" id='micGain'>1.0 dB</span>
+                    </div>
+                        &nbsp;&nbsp;
+                        <input style="width: 70%;" type="range" id="trackGainMic" min=0 max=6 value=1 step=0.001 oninput="trackGainMic(this.value)">
+                        <!-- <span id='seekEnd'>-:-- </span> -->
+                    </p>
+                </div>
+                display5
+            </div>
+            <!-- <div class="row">
+                <div style="display: inline-block;"><h3>CHORD: <p id="detectedNote" style="font-size: 100px;"></p></h3></div>
+                
+            </div>
+            <div class="row"><p id="detectedScale" style="font-size: 40px; display: none;"></h3></div>
+            <div class="row"><h3><p id="temp2" style="font-size: 40px;"></p></h3></div> -->
+
+    </div>
+    <div><p style="font-size: 10px;" id="second"></p></div>
+    <div><p style="font-size: 60px;" id="display0"></p></div>
+    <div><p style="font-size: 60px;" id="display1"></p></div>
+    <div><p style="font-size: 60px;" id="display2"></p></div>
+    <div><p style="font-size: 60px;" id="display3"></p></div>
+    <div><p style="font-size: 60px;" id="display4"></p></div>
+    <div><p style="font-size: 50px;" id="display5"></p></div>
+
+    <div>
+        <div style="display: inline-block ; width: 100%;">
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Limit-1: </b>
+                    <span style="float: right;" id='threshold0'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="limit0" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <b>Limit-2: </b>
+                    <span style="float: right;" id='threshold1'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="limit1" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(1,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+            &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <b>Limit-3: </b>
+                    <span style="float: right;" id='threshold2'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="limit2" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(2,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                    &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <b>Limit-4: </b>
+                    <span style="float: right;" id='threshold3'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="limit3" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(3,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                    &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <b>Limit-5: </b>
+                    <span style="float: right;" id='threshold4'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="limit4" type="range" min=-95 max=-5 step=1 oninput="changeThreshold(4,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                </p>
+        </div>
+
+
+
+        <div style="display: inline-block ; width: 100%;">
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-1: </b>
+                    <span style="float: right;" id='stripStart0'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="start0" type="range" step=1 oninput="changeStripRegion(0,0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-2: </b>
+                    <span style="float: right;" id='stripStart1'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="start1" type="range" step=1 oninput="changeStripRegion(1,0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-3: </b>
+                    <span style="float: right;" id='stripStart2'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="start2" type="range" step=1 oninput="changeStripRegion(2,0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-4: </b>
+                    <span style="float: right;" id='stripStart3'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="start3" type="range" step=1 oninput="changeStripRegion(3,0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>Start-5: </b>
+                    <span style="float: right;" id='stripStart4'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="start4" type="range" step=1 oninput="changeStripRegion(4,0,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            </p>
+        </div>
+
+
+        <div style="display: inline-block ; width: 100%;">
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-1: </b>
+                    <span style="float: right;" id='stripEnd0'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="end0" type="range" step=1 oninput="changeStripRegion(0,1,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-2: </b>
+                    <span style="float: right;" id='stripEnd1'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="end1" type="range" step=1 oninput="changeStripRegion(1,1,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-3: </b>
+                    <span style="float: right;" id='stripEnd2'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="end2" type="range" step=1 oninput="changeStripRegion(2,1,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-4: </b>
+                    <span style="float: right;" id='stripEnd3'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="end3" type="range" step=1 oninput="changeStripRegion(3,1,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            <div style="width: 5%; display: inline-block;">
+                <p><b>End-5: </b>
+                    <span style="float: right;" id='stripEnd4'> </span>
+                    </div>
+                    &nbsp;&nbsp;
+                    <input style="width: 13%;" id="end4" type="range" step=1 oninput="changeStripRegion(4,1,this.value)">
+                    <!-- <span id='seekEnd'>-:-- </span> -->
+                &nbsp;&nbsp;
+            </p>
+        </div>
+        
+        
+    </div>
+    <input type="checkbox" checked onchange="toggleGraphDisplay(this.checked)">
+    <label>Show Graph?</label><br>
+
+    <div id="chartContainer" style="width: 100%; height: 400px;"></div>
+    
+    
+</body>
+</html>
+
+
+
+<script src="./js/global.js"></script>
+<script src="./js/helper.js"></script>
+<script src="./js/harmony.js"></script>
+<script src="./js/piano.js"></script>
+<script src="./js/recorder.js"></script>
+<script src="./js/input.js"></script>
+<script src="./js/graph.js"></script>
+<script src="./js/algorithm.js"></script>
+<script src="./js/transport.js"></script>
+<!-- <script src="./js/global.js"></script> -->
+
+
+
+<script>
+
+var metronome = new Tone.Player('./synth/hihat.mp3').toMaster()
+// metronome.sync()
+// metronome.start()
+
+document.addEventListener('keydown',function(event){
+
+    if(event.key==' '){
+        
+
+        if(Tone.Transport.state=='started'){
+            // updateInterval = 10000
+            if(currentAnalysis.type!='mic'){
+                Tone.Transport.pause();
+                // synth.releaseAll();
+            }
+            // recorder.stop()
+        }
+        else{
+            if(currentAnalysis.type!='mic'){
+                Tone.Transport.start();
+                console.log(Tone.Transport.state)
+                chunks = []
+            }
+            // recorder.start()
+        }
+    }
+    if(event.key=='2'){
+        toggleGraphDisplay(!DISPLAY_GRAPH)
+        if(MIC.state=="stopped"){
+            // NOTES_RECORDING = []
+            MIC.open()
+            console.log(MIC)
+        }
+        else{
+            console.log(NOTES_RECORDING)
+            MIC.close()
+            playNotesRecorded()
+            
+        }
+    }
+
+    if(event.key=='a') playNotesRecorded()
+
+    if(event.key=='`'){
+        var temp = pianoALX.getValue()
+        max=0
+        min=0
+        for(var x=0;x<temp.length;x++){
+            if(temp[x]>temp[max]) max=x
+            if(temp[x]<temp[min]) min=x
+        }
+        console.log('MAX:'+String(max)+':'+String(temp[max]))
+        
+    }
+
+    if(event.key=='Enter')
+        alert('Entered')
+
+
+})
+
+
+</script>
