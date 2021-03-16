@@ -48,3 +48,47 @@ RECORDER.onstop = evt => {
     fileReader.readAsArrayBuffer(blob)
       
 }
+
+
+const audioContext = new AudioContext()
+var s1 = audioContext.createBufferSource()
+    
+
+var x = new Tone.Buffer('../songs/stayFull.mp3',function(){
+    console.log(s1)
+    return
+
+    // Convert array buffer into audio buffer
+    console.log(x.getChannelData(0))
+    s1.buffer = x.get()
+    console.log(s1.buffer)
+    console.log(s1)
+    s1.loop = true
+    s1.connect(audioContext.destination)
+    s1.start(audioCtx.currentTime)
+    console.log(s1.state)
+
+
+})
+
+// document.addEventListener('keydown',function(e){
+//     if (e.key == '/'){
+//         console.log('startin')
+//         s1.playbackRate.value = 2
+//         console.log(s1)
+//         s1.detune.value = -1200
+//         s1.start()
+        
+//     }
+// })
+
+// setInterval(function(){
+//         if(s1.context){
+//             console.log(s1.detune.value)
+//             if(Math.floor(s1.context.currentTime)%10 == 0){
+//                 s1.detune.value += 1200
+//                 s1.playbackRate.value /= 2
+//             }
+//         }
+//     },1000
+// )

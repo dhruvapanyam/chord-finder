@@ -122,3 +122,38 @@
 .margin-5 {
     margin: 5%;
 }
+
+
+.white-key {
+    border:1px solid;
+    height: 100%;
+    width: 71.5px;
+    cursor: pointer;
+    background-color: rgba(155,155,155,0);
+    /* opacity: 0; */
+    /* back */
+    /* position: absolute; */
+    top: 0px;
+    left: 0px;
+    display: flex;
+    justify-content: center;
+    /* align-items: center; */
+    line-height: 700px;
+}
+
+.black-key {
+    background-color: rgba(155,155,155,0);
+    /* opacity: 0; */
+    position: absolute;
+    top: 0;
+    width: 49px;
+    height: 288px;
+    /* margin-left: 46px; */
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    /* align-items: center; */
+
+    color: white;
+    line-height: 450px;
+}

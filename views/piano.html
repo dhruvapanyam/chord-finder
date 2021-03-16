@@ -1,25 +1,91 @@
+<style>
+    body {
+        height: 90%;
+    }
+</style>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--Import materialize.css-->
     <link type="text/css" rel="stylesheet" href="../css/materialize.min.css"  media="screen,projection"/>
+    <script type = "text/javascript"  
+    src = "https://code.jquery.com/jquery-2.1.1.min.js"></script> 
+    <script src = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js">  
+    </script>
+
+    <script src="../js/tone.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-<body>
-    <nav class="brown lighten-2">
+<body class="amber lighten-3">
+    <nav class="brown darken-1">
         <div class="nav-wrapper">
-            <a href="/" class="brand-logo">HOME</a>
+            <a href="/" class="brand-logo"><i class="material-icons" style="margin-left: 20px; font-size: 40px">home</i></a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 
             </ul>
         </div>
     </nav>
-    PIANO
+    <div class="container full-width full-height flex-container" style=" height: 80%;">
+        <div id="keyboard" class=" margin-5  flex-row" style="justify-content: left; background-image: url('../images/piano.png'); height: 433px; width: 996px;position: relative;">
+            
+            <div id="C3" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">z</div>
+            <div id="D3" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">x</div>
+            <div id="E3" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">c / q</div>
+            <div id="F3" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">v / w</div>
+            <div id="G3" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">b / e</div>
+            <div id="A3" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">n / r</div>
+            <div id="B3" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">m / t</div>
+            <div id="C4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">, / y</div>
+            <div id="D4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">u</div>
+            <div id="E4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">i</div>
+            <div id="F4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">o</div>
+            <div id="G4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">p</div>
+            <div id="A4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">[</div>
+            <div id="B4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="width: 66.5px;">]</div>
+            
+            
+            <div id="C#3" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 46px;">s</div>
+            <div id="D#3" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 117px;">d / 1</div>
+            <div id="F#3" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 253px;">g / 3</div>
+            <div id="G#3" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 332px;">h / 4</div>
+            <div id="A#3" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 411px;">j / 5</div>
+            <div id="C#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 547px;">7</div>
+            <div id="D#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 618px;">8</div>
+            <div id="F#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 755px;">0</div>
+            <div id="G#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 834px;">-</div>
+            <div id="A#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 913px;">=</div>
+            
+            
+        </div>
+        <div>
+            <p id="clip_info">Record your own custom sound: <br><br> (Sing the C note)</p>
+            <button class="z-depth-4 waves-effect teal lighten-2 btn-small" onclick="toggle_clip()">
+                <i id='clip_record_icon' class="material-icons">fiber_smart_record</i>
+            </button>
+            
+                <p id='clip_countdown' style="font-size: 100px; width:150px; margin-top: 0%; margin-bottom: 0%; display: none;">3</p>
+                
+                <p id='clip_countdown_subtitles' style="font-size: 20px; width: 150px; margin-top: 0%; display: none;">(no pressure)</p>
+        </div>
+    </div>
+    <div class="flex-container">
+        <div class="margin-1">GAIN: </div> <div class="range-field" style="width: 10%;"> <input class="margin-1" type="range" min=0 max=6 value=1 step=0.1 oninput="clipGain(this.value)"></div>
+        <div class="margin-1">ATTACK: </div> <div class="range-field" style="width: 10%;"> <input class="margin-1" type="range" min=0 max=5 value=1 step=0.1 oninput="clipAttack(this.value)"></div>
+        <div class="margin-1">SUSTAIN: </div> <div class="range-field" style="width: 10%;"> <input class="margin-1" type="range" min=0 max=5 value=1 step=0.1 oninput="clipSustain(this.value)"></div>
+    </div>
 
-    <script type="text/javascript" src="../js/materialize.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../css/style.css"  media="screen,projection"/>
+    <!-- <script type="text/javascript" src="../js/materialize.min.js"></script> -->
+    <script src="../js/piano.js"></script>
 </body>
 </html>
+
+<script>
+
+    
+</script>

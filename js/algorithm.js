@@ -1,5 +1,7 @@
 // Global----------------------------------
 
+// console.log('BBBBBBBBBBBBBBBBBBBbb')
+
 var intervals = 1
 
 KEYS = [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0]]
@@ -26,18 +28,28 @@ currentAnalysis = inputDetails[INPUT_TYPE]
 function changeInput(type){
     INPUT_TYPE = type
 
+    var icon = document.getElementById(type+'Icon');
+    var other = document.getElementById((type=='mic'?'file':'mic')+'Icon')
+    if(icon.classList.contains('grey')){
+        icon.classList.remove('grey')
+    }
+    other.classList.add('grey')
+    
+
     if(currentAnalysis.input != type)
     {
         currentAnalysis = inputDetails[type]
         if(type=='mic'){
             d = new Date()
             TIME_STARTED = d.getTime()
-
+            console.log('micIcon')
+            Tone.Transport.start()
             Tone.Transport.pause()
+            pauseSongPlayer()
             MIC.open()
         }
         else{
-            Tone.Transport.start()        
+            //Tone.Transport.start()        
             MIC.close()
         }
     }
@@ -61,7 +73,8 @@ peakLimit = [
     {low:2,high:5}
 ]
 
-thresholdLimit = [-60,-55,-50,-50,-45]
+// thresholdLimit = [-60,-55,-50,-50,-45]
+thresholdLimit = [-70,-70,-70,-70,-70]
 
 PREVCHORD = null
 
@@ -83,20 +96,31 @@ currentNoteCount = 0
 NOTES_RECORDING = []
 TIME_STARTED = 0
 
+// console.log(Brain)
+
 //----------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------MASTER----------------------------------------------------------------------------
 
 setInterval(function(){updateMaster()}, updateInterval);
 
 function updateMaster(){
-
+    // console.log('hello?')
     if(Tone.Transport.state != 'started' && INPUT_TYPE=='file'){        // Change this to clearInterval(), etc. later
         return
     }
 
+    if(MIC_MUTE && INPUT_TYPE=='mic'){
+        return;
+    }
+
+    // console.log('HELLO')
+
+    // neural_master()
+    // return
+
     results = renderData()
     if(!results) return
-
+    // print(results)
     if(OUTPUT_TYPE=='chord'){
         // console.log(chord)
         
@@ -107,18 +131,175 @@ function updateMaster(){
     }
 }
 
-function renderData(){
-    intervals++;
 
-    if(DISPLAY_GRAPH) chart.render()
+// const downloadToFile = (content, filename, contentType) => {
+//     const a = document.createElement('a');
+//     const file = new Blob([content], {type: contentType});
+    
+//     a.href= URL.createObjectURL(file);
+//     a.download = filename;
+//     a.click();
+  
+//       URL.revokeObjectURL(a.href);
+// };
+  
+// document.querySelector('#btn-save').addEventListener('click', () => {
+//     // const textArea = document.querySelector('textarea');
+//     ADD_DATA = (ADD_DATA + 1) % 3
+//     document.getElementById('btn-save').innerHTML = btnTexts[ADD_DATA]
+//     // downloadToFile(JSON.stringify(NEURAL_DATA), 'nn.txt', 'text/plain');
+// });
 
-    var tops = [[],[],[],[],[]] // Loudest notes found in the 5 octaves
-    // console.log(currentAnalysis.input == 'mic')
-    if(currentAnalysis.input=='mic')
+function sum_arr(arr){
+    s = 0
+    for(i=0;i<arr.length;i++)
+        s += arr[i]
+    return s
+}
+
+CUR_CHORD = 0
+
+btnTexts = ['REST MODE','ADD MODE','PREDICT MODE']
+ADD_DATA = 0
+
+// --------------------------------------------------------------------------------------------------------------------
+
+function refactor(val){
+    // return alx[i]
+    // print(i)
+    // print(alx[i],alx[i] / (1 + Math.pow(i,0.1)))
+    
+    // alx[i] = -Math.pow(Math.abs(alx[i],0.9))
+    // print(Math.abs(alx[i]))
+    return val
+    let p = 3
+    let x = Math.pow(Math.abs(val),p) / Math.pow(55,p-1)
+    // print(x)
+    // print(' ')
+    // return alx[i]/100
+    // print(alx[i],(Math.pow(Math.abs(i),0.15)))
+    return -x
+    return alx[i] * (Math.pow(Math.abs(i),0))    // reduce higher up the scale
+}
+
+// trying something out ------------------------
+
+var CYCLE_LENGTH = 100
+// var prevALX = [...Array(CYCLE_LENGTH).keys()].map(x=>makeArray(1,16384)[0])
+
+// ---------------------------------------------
+
+var cycleCounter = 0
+
+function neural_master(){
+    chart.render()
+    if(currentAnalysis.input=='mic'){
         alx = micALX.getValue(); // Frequency graph
+        // console.log('mic')
+    }
     else
         alx = songPlayerALX.getValue();
 
+    // for(let i=0;i<alx.length;i++){
+    //     if(prevALX[cycleCounter][i] < alx[i]) alx[i] += prevALX[cycleCounter][i]
+    // }
+
+    let notes_only = Object.keys(notes).map(x=>alx[x])
+    analyseOvertones(notes_only)
+    for(note in notes){
+        x = graphPoints[note]["x"]             // index of frequency
+            
+        // ref = refactor(x)
+        ref = refactor(notes_only[noteIndex[note]])
+
+        // if(ref<=-95) continue    // if too soft, don't care about it
+        graphPoints[note]["y"] = Math.max(ref,-95)        // update value if loud enough
+
+        if(ref > -70){         // If the frequency is a note,     
+            graphPoints[note]["indexLabel"] = notes[note]                
+        }
+        else
+            graphPoints[note]["indexLabel"] = ''
+    }
+
+
+
+    // for(let p=0; p < alx.length; p++){
+    //     // if(parseInt(p)==graphPoints.length-1) continue      // need this to keep the graph stable (visually)
+    //     if(graphPoints[p] == undefined) continue
+    //     if(p in notes == false) continue
+    //     x = graphPoints[p]["x"]             // index of frequency
+            
+    //     ref = refactor(x)
+    //     prevALX[cycleCounter][p] = ref
+
+    //     if(ref<=-95) continue    // if too soft, don't care about it
+    //     graphPoints[p]["y"] = ref        // update value if loud enough
+
+    //     if(ref > -70 && (x in notes || OUTPUT_TYPE=='note')){         // If the frequency is a note,     
+    //         if(OUTPUT_TYPE=='chord') {
+    //             graphPoints[p]["indexLabel"] = notes[x]     
+    //         }
+    //         else {
+    //             closest = findClosestNote(x)
+    //             if(closest==null) continue
+
+    //             if(x in notes)
+    //                 graphPoints[p]["indexLabel"] = notes[x]     
+    //             else
+    //                 graphPoints[p]["indexLabel"] = ''   
+    //         }
+            
+    //     }
+    //     else
+    //         graphPoints[p]["indexLabel"] = ''
+    // }
+    
+    // // note_strengths = Object.keys(notes).map(x => [notes[x],alx[x]])
+    // note_strengths = Object.keys(notes).map((x,i) => refactor(x))
+    // removeOvertones(note_strengths)
+    
+    // if(ADD_DATA == 1)
+    //     addToTrainingData(note_strengths, CUR_CHORD)
+    // else if(ADD_DATA == 2)
+    //     predictChord(note_strengths)
+
+    // cycleCounter = (cycleCounter+1) % CYCLE_LENGTH
+}
+
+
+
+
+
+
+
+function renderData(){
+    intervals++;
+
+    // if(DISPLAY_GRAPH) chart.render()
+    chart.render()
+
+    var tops = [[],[],[],[],[]] // Loudest notes found in the 5 octaves
+    // console.log(currentAnalysis.input == 'mic')
+    if(currentAnalysis.input=='mic'){
+        alx = micALX.getValue(); // Frequency graph
+        // console.log('mic')
+    }
+    else
+        alx = songPlayerALX.getValue();
+
+    // console.log('NEURAL:')
+    // temp_data = alx.filter((x,i)=>{
+    //     return i in notes
+    // }).map(x=>Math.round(x))
+    // console.log(temp_data)
+
+    // NEURAL_DATA[Object.keys(NEURAL_DATA).length] = []
+    // if(ADD_DATA == 1) addToTrainingData(temp_data, CUR_CHORD)
+    // else if(ADD_DATA == 2) normalizePredict(temp_data)
+    
+    // alx = removeOvertones(alx)
+    let flag=0
     for(var oct=0;oct<5;oct++){
 
         for(let p=octaveRegions[oct].start;p<octaveRegions[oct].end;p++){
@@ -156,33 +337,46 @@ function renderData(){
                 graphPoints[p]["indexLabel"] = ''
         }
 
+        // console.log(alx)
+
         //---------------------------DYNAMIC THRESHOLDS---------------------------------------------
                 // change the threshold of an octave if there are too many peaks, or too few.
 
         
 
         if(tops[oct].length > peakLimit[oct].high && threshold[oct] < -25){     // If the number of peaks is greater than the limit specified, and the threshold is still below -25
+            // print('!!!!!!!!!!!!!!!!')
+            flag=1
+            // document.getElementById('pass-indicator').style.backgroundColor = 'red'
             
             total = 0
             for(var i=0;i<tops[oct].length;i++)
                 total+=tops[oct][i][1]
             
             avg = Math.floor(total/tops[oct].length)                    // Gets average strength of all peaks
-            tops[oct] = tops[oct].filter(x=>{return x[1] > avg+8})      // Keeps only the peaks that have strength > (avg+8)-------8 can be changed--------meant for drums, etc.
+            tops[oct] = tops[oct].filter(x=>{return x[1] > avg+4})      // Keeps only the peaks that have strength > (avg+8)-------8 can be changed--------meant for drums, etc.
 
             
             changeThreshold(oct,threshold[oct]+1);                      // INCREASE threshold by 1
             document.getElementById('limit'+String(o)).value=threshold[oct]+1
+            // break
         }
 
         if(tops[oct].length < peakLimit[oct].low && threshold[oct] > thresholdLimit[oct]){// If the number of peaks is smaller than the limit specified, and the threshold is still above the lower limit
+            // print('-----------------')
+            flag=1
+            // document.getElementById('pass-indicator').style.backgroundColor = 'red'
+    
             changeThreshold(oct,threshold[oct]-1);                      // DECREASE threshold by 1
             document.getElementById('limit'+String(oct)).value=threshold[oct]-1
+            // break
         }
     
         //--------------------------------------------------------------------------------------------------
     }
+    if(flag) return null
 
+    // document.getElementById('pass-indicator').style.backgroundColor = 'green'
     // 2 IDEAS : 
     // 1 - don't change thresholds, and find peaks. If there are too many peaks, filter out peaks of peaks, and only if the slope of the peak is steep enough (lol didn't work)
     // 2 - change thresholds and trust it to return the right peaks
@@ -193,11 +387,17 @@ function renderData(){
             return decluster(x)             // Finds all the "significant" peaks in clustered frequencies of 'tops'
         })
 
+        let temp = []
+        // console.log(sum_arr(tops.map(x=>x.length)))
+
         for(var i=0;i<5;i++){
-            // if(results[i].length) 
-            //     document.getElementById('display'+String(i)).innerHTML = results[i].map(x=>x[0])          // Display peak notes
-            // else document.getElementById('display'+String(i)).innerHTML = '-'
+            if(results[i].length) {
+                // document.getElementById('display'+String(i)).innerHTML = results[i].map(x=>x[0])          // Display peak notes
+                for(let x of results[i]) temp.push(x[0])
+            }
+            else document.getElementById('display'+String(i)).innerHTML = '-'
         }
+        // if(temp.length) print(temp)
 
         for(var i=0;i<5;i++){
             results[i] = results[i].sort((a,b)=>{b[1]-a[1]})        // Sort all the peaks of an octave by decreasing strengths
@@ -208,16 +408,20 @@ function renderData(){
         results = results.filter(x=>{return x.length>0})        // Consider only the octaves which have significant peaks
         // console.log(results)
 
-        if(results.length==0) return null
+        if(results.length==0) {
+            // document.getElementById('pass-indicator').style.backgroundColor = 'red'
+            return null
+        }
 
         return results
 
 }
 
+
 //------------------------------------------------------------CHORD FINDER----------------------------------------------------------------------
 
 function alxChord(results){
-
+    // console.log('alxChord')
     AVERAGE_VOLUME = 0
     for(var i=0;i<4;i++){
         AVERAGE_VOLUME += threshold[i]
@@ -254,13 +458,14 @@ function alxChord(results){
     // CHORDS = []     // List of chords found with these results
 
     var CHORDS = findAllChords(myArr)
-
+    // console.log(CHORDS)
 
     CHORDS.sort((a,b)=>{
         return a.score - b.score
     })
 
     if(CHORDS.length==0) return
+
 
     
     hist.unshift(CHORDS[0])
@@ -286,7 +491,7 @@ function alxChord(results){
     // console.log(counts)
 
     m = null
-    m2=null
+    m2 = null
     for(c in counts){
         // console.log(c)
         if(m==null || counts[c].num>counts[m].num){
@@ -383,7 +588,7 @@ function alxChord(results){
         // PREVCOUNT=1
         PREVCHORD = final
         temp = KEYS
-        console.log(temp)
+        // console.log(temp)
         // document.getElementById('display4').innerHTML = String()
         newdisp.innerHTML = PREVCHORD.name + ' '
         
@@ -443,6 +648,7 @@ function findAllChords(myArr){
 
         BASE = BASE[0]
         octave = BASE[BASE.length-1]
+        // console.log(BASE,octave)
 
         // IMPORTANT: Now, we can find all the chords possible using the notes found, and push them into CHORDS
 
@@ -452,6 +658,16 @@ function findAllChords(myArr){
             bass = rawNote(results[0][0][0])
         }
 
+        const numNotes = {
+            '':1,
+            '5':2,
+            'min':3,
+            'maj':3,
+            'm7':4,
+            'mM7':4,
+            '7':4,
+            'maj7':4
+        }
         myChords = []
         {
             if(chordP.has(0)){
@@ -520,6 +736,7 @@ function findAllChords(myArr){
         }
 
         myChords = myChords.map(x => {
+            // x.score /= Math.pow(numNotes[x.type],0.3)
             if(x.root == x.bass)
                 name = root+x.type
             else
@@ -789,3 +1006,51 @@ function playNotesRecorded(){
     
     
 }
+
+
+function removeOvertones(notes_arr){
+    // format: for each note, volume
+    counts = notes_arr.map(x=>0)
+
+    for(i=0;i<60;i++){
+        if(notes_arr[i] < -80) continue
+        let strength = notes_arr[i] + 100
+        for(let j=0;j<overtones.length;j++){
+            let note = overtones[j]
+            if(i+note >= 60) break
+            counts[i+note]++
+            notes_arr[i+note] -= strength/Math.pow(j+2,1.5)
+        }
+    }
+
+    print('G4:',counts[12*3 + 7])
+
+
+}
+
+function analyseOvertones(arr){
+    res = []
+    for(note in notes){
+        let i = noteIndex[note]
+        if(arr[i] > -50 && arr[i+12] > -50 && arr[i+19] > -60){
+            res.push(notes[note])
+        }
+    }
+    print(res)
+}
+
+const true_frequencies = {}
+
+k=25
+for(note in notes){
+    while(k<1050 && Math.floor(k*16384/22020)<note)
+    {
+        k+=0.1
+    }
+    if(k>=1050) break
+    true_frequencies[k] = note
+}
+
+// print(true_frequencies)
+
+

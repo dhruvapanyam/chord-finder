@@ -1,5 +1,8 @@
 var OUTPUT_TYPE = 'chord'
 var INPUT_TYPE = 'file'
+var MIC_MUTE = false
+
+// console.log('global.js')
 
 var chordExpansion = {
     'maj':[0,4,7],

@@ -63,6 +63,8 @@ var chart = new CanvasJS.Chart("chartContainer",{
     title :{
         text: "Audio FFT"
     },
+    // backgroundColor: '#94a8b0',
+    theme: 'dark1',
     axisX: {						
         title: "Frequency",
         stripLines:[                    // FOR EACH OCTAVE
@@ -70,73 +72,73 @@ var chart = new CanvasJS.Chart("chartContainer",{
             startValue: octaveRegions[0].start,             // OCTAVE 1
             endValue: octaveRegions[0].end,
             color:"#8cbec2",
-            opacity:0.9
+            opacity:0.1
         },
         {
             startValue: octaveRegions[1].start,             // OCTAVE 2
             endValue: octaveRegions[1].end,
             color:"#ffd480",
-            opacity:0.9
+            opacity:0.1
         },
         {
             startValue: octaveRegions[2].start,             // OCTAVE 3
             endValue: octaveRegions[2].end,
             color:"#f08d86",
-            opacity:0.9
+            opacity:0.1
         },
         {
             startValue: octaveRegions[3].start,             // OCTAVE 4
             endValue: octaveRegions[3].end,
             color:"#a1de90",
-            opacity:0.9
+            opacity:0.1
         },
         {
             startValue: octaveRegions[4].start,             // OCTAVE 5
             endValue: octaveRegions[4].end,
             color:"#b5b5ba",
-            opacity:0.9
+            opacity:0.1
         }
         ]
     },
     axisY: {						
         title: "Strength",
-        // stripLines:[
-        //     {
-        //         value: threshold[0],
-        //         color:"red",
-        //         thickness:2,
-        //         opacity: 0.7
+        stripLines:[
+            {
+                value: threshold[0],
+                color:"red",
+                thickness:2,
+                opacity: 0.7
 
-        //     },
-        //     {
-        //         value: threshold[1],
-        //         color:"red",
-        //         thickness:2,
-        //         opacity: 0.7
+            },
+            {
+                value: threshold[1],
+                color:"red",
+                thickness:2,
+                opacity: 0.7
 
-        //     },
-        //     {
-        //         value: threshold[2],
-        //         color:"red",
-        //         thickness:2,
-        //         opacity: 0.7
+            },
+            {
+                value: threshold[2],
+                color:"red",
+                thickness:2,
+                opacity: 0.7
 
-        //     },
-        //     {
-        //         value: threshold[3],
-        //         color:"red",
-        //         thickness:2,
-        //         opacity: 0.7
+            },
+            {
+                value: threshold[3],
+                color:"red",
+                thickness:2,
+                opacity: 0.7
 
-        //     },
-        //     {
-        //         value: threshold[4],
-        //         color:"red",
-        //         thickness:2,
-        //         opacity: 0.7
+            },
+            {
+                value: threshold[4],
+                color:"red",
+                thickness:2,
+                opacity: 0.7
 
-        //     }
-        // ]
+            }
+        ]
     },
     data: [{
         type: "line",
@@ -146,6 +148,7 @@ var chart = new CanvasJS.Chart("chartContainer",{
 
 chart.render();
 var DISPLAY_GRAPH = true
+
 
 function toggleGraphDisplay(val){
     DISPLAY_GRAPH = val

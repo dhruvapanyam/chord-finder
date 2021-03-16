@@ -7,7 +7,16 @@ const notes = {
     389:'C5',412:'C#5',436:'D5',462:'D#5',490:'E5',519:'F5',550:'F#5',583:'G5',617:'G#5',654:'A5',693:'A#5',734:'B5'
 }
 
-// console.log(notes[179])
+const overtones = [12,19,24,27,31,36,38]
+
+// console.log(Object.keys(notes))
+
+var noteIndex = {}
+for(let i=0;i<Object.keys(notes).length;i++){
+    noteIndex[parseInt(Object.keys(notes)[i])] = i
+}
+
+// console.log(noteIndex)
 
 
 const scale = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']

@@ -22,15 +22,17 @@ div {
     <script src="../js/tone.js"></script>
     <script src="../js/canvasjs.min.js"></script>
 
+    <script src="../js/transport.js"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-<body class="blue-grey lighten-4">
+<body class="blue-grey darken-3">
     <div>
-        <nav class="brown lighten-2">
+        <nav class="brown darken-1">
             <div class="nav-wrapper">
-                <a href="/" class="brand-logo">HOME</a>
+                <a href="/" class="brand-logo"><i class="material-icons" style="margin-left: 20px; font-size: 40px">home</i></a>
                 <ul id="nav-mobile" class="right hide-on-med-and-down">
                     
                 </ul>
@@ -73,19 +75,21 @@ div {
 
         </div>
 
-        <div class=" site-container">
+        <div class="site-container">
             <div class="row " style="height: 60%; ">
                 <div class="col m9" style="text-align: center;">
                     <div class="row half-height input-container">
                         <div class="card-container flex-column">
-                            <div class="z-depth-3 full-width flex-row input-card orange darken-2" style="border-bottom: 1px solid;">
+                            <div class="z-depth-3 full-width flex-row input-card blue lighten-2" style="border-bottom: 1px solid;">
                                 <div class="input-card-item input-device-container flex-column" style="align-items: stretch;">
                                     <ul id = "dropdown" class = "dropdown-content">
+                                        <li><a id="broken.mp3" onclick="loadTrack(this)">Lindsey Lomis - Meant to Be Broken</a></li>
+                                        <li class = "divider"></li>
                                         <li><a id="harryFalling.mp3" onclick="loadTrack(this)">Harry Styles - Falling</a></li>
                                         <li class = "divider"></li>
-                                        <li><a id="thatsus.mp3" onclick="loadTrack(this)">Anson Seabra - That's Us</a></li>
+                                        <li><a id="easy.mp3" onclick="loadTrack(this)">Mac Ayres - Easy</a></li>
                                         <li class = "divider"></li>
-                                        <li><a id="wonderful.m4a" onclick="loadTrack(this)">Dhruva Panyam - Wonderful World</a></li>
+                                        <li><a id="thatsus.mp3" onclick="loadTrack(this)">Anson Seabra - That's Us</a></li>
                                         <li class = "divider"></li>
                                         <li><a id="perfect.mp3" onclick="loadTrack(this)">Ed Sheeran - Perfect</a></li>
                                         <li class = "divider"></li>
@@ -107,15 +111,12 @@ div {
                                         <li class = "divider"></li>
                                         <li><a id="noWay.m4a" onclick="loadTrack(this)">Fifth Harmony - No Way</a></li>
                                         <li class = "divider"></li>
-                                        <li><a id="stars.mp3" onclick="loadTrack(this)">Dhrva Panyam - Stars</a>
-                                        <li class = "divider"></li>
-                                        <li><a id="run.mp3" onclick="loadTrack(this)">Dhruva Panyam - Run</a></li>
-                                        <li class = "divider"></li>
                                         <li><a id="stay.m4a" onclick="loadTrack(this)">Sam Smith - Stay With Me</a></li>
                                      </ul>
-                                    <button class="z-depth-3 input-device-icon waves-effect btn">
+                                    <button id='fileIcon' class="z-depth-3 input-device-icon waves-effect btn" onclick="changeInput('file');getURLofLocalFile()">
                                         <i class="material-icons file-icon" style="font-size: 100px;">library_music</i>
                                     </button>
+                                    <input type='file' id='fileopen' style="display: none;">
                                     <button class="flex-row load-file waves-effect dropdown-button waves-light btn-flat blue-grey lighten-2 white-text"  data-activates="dropdown">
                                         <div class="margin-1">LOAD FILE</div>
                                         <i class = "material-icons">arrow_drop_down</i>
@@ -131,13 +132,13 @@ div {
                                     <div class="divider" style="width: 100%;"></div>
                                     <div class="half-height full-width file-details-item song-actions flex-row">
                                         <div class="song-actions-icons">
-                                            <button class="waves-effect btn teal song-actions-button">
-                                                <i class="material-icons">play_arrow</i>
+                                            <button class="waves-effect btn teal song-actions-button" onclick="toggleSongPlayer()">
+                                                <i id="songPlayerPlayPauseIcon" class="material-icons">play_arrow</i>
                                             </button>
-                                            <button class="waves-effect btn teal song-actions-button" disabled>
+                                            <!-- <button class="waves-effect btn teal song-actions-button" onclick="toggleSongPlayer()">
                                                 <i class="material-icons">pause</i>
-                                            </button>
-                                            <button class="waves-effect btn teal song-actions-button" disabled>
+                                            </button> -->
+                                            <button class="waves-effect btn teal song-actions-button" onclick="stopSongPlayer()">
                                                 <i class="material-icons">stop</i>
                                             </button>
                                         </div>
@@ -152,29 +153,93 @@ div {
                                 </div>
                             </div>
                             <div class="z-depth-3 input-filters brown lighten-2 flex-row">
-                                <div class="filters-label margin-5" style="width: 5%;">FILTERS:</div>
+                                <!-- <div class="filters-label margin-5" style="width: 5%;">FILTERS:</div> -->
                                 <div class="filter-sliders flex-row full-height" style="width: 90%;">
                                     <div class="margin-1 flex-row full-height" style="width: 50%;">
-                                        <div class="margin-5">FREQUENCIES: </div> <div class="range-field" style="width: 90%;"> <input class="margin-1" type="range"></div>
+                                        <div class="margin-5">FREQUENCIES: </div> 
+                                        <div class="range-field" style="width: 90%;"> 
+                                            <input class="margin-1" type="range" min=0 max=10000 value=0     oninput="highFilterTrack(this.value)">
+                                            <input class="margin-1" type="range" min=0 max=10000 value=10000 oninput="lowFilterTrack(this.value)" >
+                                        </div>
                                     </div>
                                     <div class="margin-1 flex-row full-height" style="width: 20%;">
-                                        <div class="margin-5">GAIN: </div> <div class="range-field" style="width: 90%;"> <input class="margin-1" type="range"></div>
+                                        <div class="margin-5">GAIN: </div> <div class="range-field" style="width: 90%;"> <input class="margin-1" type="range" min=0 max=6 value=1 step=0.001 oninput="trackGain(this.value)"></div>
                                     </div>
                                     <div class="margin-1 flex-row full-height" style="width: 20%;">
-                                        <div class="margin-5">VOLUME: </div> <div class="range-field" style="width: 90%;"> <input class="margin-1" type="range"></div>
+                                        <div class="margin-5">VOLUME: </div> <div class="range-field" style="width: 90%;"> <input class="margin-1" type="range" min=0 max=6 value=1 step=0.001 oninput="outputGain(this.value)"></div>
                                     </div>
                                     
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row half-height input-container">
-                        
-                        
-                        
+
+                    <!-- <button id='btn-save'>REST MODE</button>
+                    <button id='btn-save-model'>SAVE MODEL</button>
+                    <input type="file" id="file-selector" multiple> -->
+                    
+                    <div class="row half-height input-container" style="width: 50%;">
+                        <div class="card-container flex-column">
+                            <div class="z-depth-3 full-width flex-row input-card red lighten-2" style="border-bottom: 1px solid;">
+                                <div class="input-card-item input-device-container flex-column" style="align-items: stretch;width: 25%;margin-left: 2.5%;">
+                                    <button id='micIcon' class="z-depth-3 input-device-icon waves-effect btn grey" style="border-radius: 10px; height: 90%;" onclick="changeInput('mic');">
+                                        <i class="material-icons file-icon" style="font-size: 100px;">mic</i>
+                                    </button>
+                                    
+                                </div>
+                                
+                                
+                                <div class="input-card-item file-details flex-column">
+                                    <div class="full-width file-details-item song-title valign-wrapper flex-container" style="height: 49%; font-size: 30px;">
+                                        <div id="loadedTrack">Mic Input</div>    
+                                    </div>
+                                    <div class="divider" style="width: 100%;"></div>
+                                    <div class="half-height full-width file-details-item song-actions flex-row">
+                                        <div class="song-actions-icons">
+                                            <button id='micMuteBtn' class="waves-effect btn teal song-actions-button" onclick="toggleMicMute()">
+                                                <i id='micMute' class="material-icons">volume_up</i>
+                                            </button>
+                                            <!-- <button id='muteMic' class="waves-effect btn teal song-actions-button" disabled onclick="toggleMicMute(false)">
+                                                <i class="material-icons">volume_off</i>
+                                            </button> -->
+                                            <button class="waves-effect btn teal song-actions-button" >
+                                                <i class="material-icons" style="font-size: 200%;">fiber_manual_record</i>
+                                            </button>
+                                        </div>
+                                        <!-- <div class="song-actions-seek flex-row">
+                                            <div id="seek">0:00</div>
+                                            <div class="range-field margin-1" style="width: 90%;">
+                                                <input id="seekBar" type="range" min="0" max="0"  oninput="seekTime(this.value)">
+                                            </div>
+                                            <div id="seekEnd">0:00</div>
+                                        </div> -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="z-depth-3 input-filters brown lighten-2 flex-row">
+                                <!-- <div class="filters-label margin-5" style="width: 5%;">FILTERS:</div> -->
+                                <div class="filter-sliders flex-row full-height" style="width: 90%;">
+                                    <div class="margin-1 flex-row full-height" style="width: 60%;">
+                                        <div class="margin-5">FREQUENCIES: </div> 
+                                        <div class="range-field" style="width: 90%;"> 
+                                            <input class="margin-1" type="range" min=0 max=10000 value=0 oninput="highFilterTrack(this.value)">
+                                            <input class="margin-1" type="range" min=0 max=10000 value=10000 oninput="lowFilterTrack(this.value)">
+                                        </div>
+                                    </div>
+                                    <div class="margin-1 flex-row full-height" style="width: 30%;">
+                                        <div class="margin-5">GAIN: </div> <div class="range-field" style="width: 90%;"> <input class="margin-1" type="range" min=0 max=6 value=1 step=0.001 oninput="trackGainMic(this.value)"></div>
+                                    </div>
+                                    <!-- <div class="margin-1 flex-row full-height" style="width: 20%;">
+                                        <div class="margin-5">VOLUME: </div> <div class="range-field" style="width: 90%;"> <input class="margin-1" type="range"></div>
+                                    </div> -->
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <label id='pass-indicator' style='background-color: red'>PASSED</label> -->
                     </div>
                 </div>
-                <div class="col m3 amber">
+                <div class="col m3 amber darken-2">
                     <div class="row blue-grey flex-container" style="height: 10%;">
                         <div style="font-size: 20px;">DETECTED CHORD:</div>
                     </div>
@@ -187,6 +252,11 @@ div {
                     </div>
                 </div>
             </div>
+            <div id="display0"></div>
+            <div id="display1"></div>
+            <div id="display2"></div>
+            <div id="display3"></div>
+            <div id="display4"></div>
             <div class="row flex-container full-width" style="height: 40%;">
                 <div class=" z-depth-4 margin-1 brown" id="chartContainer" style="height: 92%;width: 100%"></div>
             </div>
@@ -201,8 +271,10 @@ div {
     <div class="row" style="padding-top: 30px; display: none;" id="audioWrapper">
         <!-- <div class="row"><input type="checkbox"  oninput="toggleOutput(this.checked)"></div> -->
         
-        <div class="row">
+        <!-- <div class="row">
             <select id="trackName">
+                <option value="laufey.mp3">Laufey</option>
+                <option value="overjoyed.mp3">Nishant - Overjoyed (Guitar)</option>
                 <option value="harryFalling.mp3">Harry Styles - Falling</option>
                 <option value="thatsus.mp3">Anson Seabra - That's Us</option>
                 <option value="wonderful.m4a">Dhruva Panyam - Wonderful World</option>
@@ -238,7 +310,7 @@ div {
             <input type="button" value="Load" onclick="loadTrack()">
             <input id="enterName">
             <input type="button" value="Search" onclick="loadTrack(1)">
-        </div>
+        </div> -->
 
 
         <div class="row">
@@ -459,14 +531,16 @@ div {
 </div>
     
     <script src="../js/global.js"></script>
+    <!-- <script src="../js/nn.js"></script> -->
     <script src="../js/helper.js"></script>
     <script src="../js/harmony.js"></script>
-    <script src="../js/piano.js"></script>
+    <!-- <script src="../js/piano.js"></script> -->
     <script src="../js/recorder.js"></script>
     <script src="../js/input.js"></script>
     <script src="../js/graph.js"></script>
     <script src="../js/algorithm.js"></script>
-    <script src="../js/transport.js"></script>
+    
+    <div id='neural'></div>
     
 </body>
 </html>
@@ -474,28 +548,18 @@ div {
 <script>
 
 // con
-    document.addEventListener('keydown',function(event){
+document.addEventListener('keydown',function(event){
 
-        if(event.key==' '){
-    
-
-    if(Tone.Transport.state=='started'){
-        // updateInterval = 10000
-        if(currentAnalysis.type!='mic'){
-            Tone.Transport.pause();
-            // synth.releaseAll();
+    if(event.key==' '){
+        
+        if(INPUT_TYPE=='mic') {
+            toggleMicMute(!MIC_MUTE)
+            return;
         }
-        // recorder.stop()
+        // console.log('spacebar')
+        
+        toggleSongPlayer();
     }
-    else{
-        if(currentAnalysis.type!='mic'){
-            Tone.Transport.start();
-            console.log(Tone.Transport.state)
-            chunks = []
-        }
-        // recorder.start()
-    }
-}
 if(event.key=='2'){
     toggleGraphDisplay(!DISPLAY_GRAPH)
     if(MIC.state=="stopped"){
@@ -511,7 +575,7 @@ if(event.key=='2'){
     }
 }
 
-if(event.key=='a') playNotesRecorded()
+// if(event.key=='a') playNotesRecorded()
 
 if(event.key=='`'){
     var temp = pianoALX.getValue()

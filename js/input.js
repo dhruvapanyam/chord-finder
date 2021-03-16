@@ -1,6 +1,6 @@
 //---------------------------------------------------SONG PLAYER----------------------------------------
 
-var track = "./../songs/gravity.mp3"
+var track = "./../songs/cmaj7.mp3"
 var songPlayer = new Tone.Player(track)
 // console.log(songPlayer)
 
@@ -10,7 +10,7 @@ filterLowerBound.frequency.value = 0
 
 var filterUpperBound = new Tone.Filter()
 filterUpperBound.type="lowpass"
-filterUpperBound.frequency.value = 10000
+filterUpperBound.frequency.value = 50000
 
 songPlayer.connect(filterLowerBound)
 songPlayer.connect(filterUpperBound)
@@ -27,10 +27,25 @@ songPlayerALX = new Tone.Analyser("fft",16384)
 
 songPlayerGain.connect(songPlayerALX)                            
 
+
 songPlayerVolume = new Tone.Gain().toMaster()
 songPlayerVolume.gain.value = 0.5
 filterLowerBound.connect(songPlayerVolume)
 filterUpperBound.connect(songPlayerVolume)
+
+// var songReverb = new Tone.Distortion().toMaster()
+// songReverb.generate().then(function(){console.log('reverb');songPlayerVolume.connect(songReverb)})
+
+// var feedbackDelay = new Tone.PingPongDelay({
+//     "delayTime" : "0.4",
+//     "feedback" : 0.6,
+//     "wet" : 0.5
+// }).toMaster();
+
+// songPlayerVolume.connect(feedbackDelay)
+
+// songPlayerGain.connect(songReverb)
+// songReverb.connect(songPlayerALX)                            
 
 songPlayerVolume.connect(RECORDER_SOURCE)                                  // Record to audio file
 
@@ -42,21 +57,54 @@ document.getElementById('seekBar').max=dur
 document.getElementById('seekBar').value=0
 displaySeek(dur,'seekEnd')
 
-function loadTrack(element,search=0){
-    name = element.id
-    title = element.innerHTML
+// Tone.Transport.loop = true
+// Tone.Transport.loopStart = 2
+// Tone.Transport.loopEnd = 10
+
+function getURLofLocalFile(){
+    document.getElementById('fileopen').addEventListener('change', function(e) {
+      var target = e.currentTarget;
+      var file = target.files[0];
+      var reader = new FileReader();
+      
+      console.log(file);
+       if (target.files && file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                console.log(e)
+                blob_url = e.target.result
+
+                loadTrack(element=null, loaded=true, title=file.name, blob=blob_url)
+                return;
+
+
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('fileopen').click()
+}
+
+function loadTrack(element,loaded=0, title=null, blob=null){
+    let name;
+    if(title==null){
+        name = element.id
+        title = element.innerHTML
+    }
 
     document.getElementById('loadedTrack').innerHTML = '<div class="preloader-wrapper small active"><div class="spinner-layer spinner-blue-only"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>'
 
     for(i=0;i<12;i++)
         KEYS[i][1]=0                // Reset key-finding
 
-    if(search) trackName = document.getElementById('enterName')
-    else trackName = name
+    if(loaded) trackName = blob
+    else trackName = '../songs/'+name
 
 
     // console.log('loaded',trackName,title)
-    songPlayer.load('../songs/'+trackName,function(){
+    
+    songPlayer.load(trackName,function(){
 
         document.getElementById('loadedTrack').innerHTML = title
         // console.log(document.getElementById('loadedTrack'))
@@ -72,11 +120,11 @@ function loadTrack(element,search=0){
 // loadTrack('gravity.mp3')
 
 function highFilterTrack(val){
-    filterLowerBound.frequency.value=val
+    filterLowerBound.frequency.value=val    // Default value = 0
     document.getElementById('lowpass').innerHTML=' '+String(val)+' Hz'
 }
 function lowFilterTrack(val){
-    filterUpperBound.frequency.value=val
+    filterUpperBound.frequency.value=val    // Default value = 10000
     document.getElementById('highpass').innerHTML=' '+String(val)+' Hz'
 }
 
@@ -111,6 +159,21 @@ micGain.connect(micALX)
 function trackGainMic(val){
     micGain.gain.value = val
     document.getElementById('micGain').innerHTML = val+'dB'
+}
+
+function toggleMicMute(){
+    MIC_MUTE = !MIC_MUTE
+
+    var icon = document.getElementById('micMute')
+    icon.innerHTML = MIC_MUTE ? 'volume_off' : 'volume_up'
+
+    var btn = document.getElementById('micMuteBtn')
+    let from = MIC_MUTE ? 'teal' : 'grey'
+    let to = !MIC_MUTE ? 'teal' : 'grey'
+
+    btn.classList.remove(from)
+    btn.classList.add(to)
+
 }
 
 MIC.connect(micALX);
