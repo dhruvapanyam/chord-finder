@@ -19,7 +19,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Chord Finder</title>
 </head>
 <body class="amber lighten-3">
     <nav class="brown darken-1">
@@ -41,8 +41,8 @@
             <div id="A3" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">n / r</div>
             <div id="B3" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">m / t</div>
             <div id="C4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">, / y</div>
-            <div id="D4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">u</div>
-            <div id="E4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">i</div>
+            <div id="D4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">. / u</div>
+            <div id="E4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">/ / i</div>
             <div id="F4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">o</div>
             <div id="G4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">p</div>
             <div id="A4" class="white-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)">[</div>
@@ -54,8 +54,8 @@
             <div id="F#3" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 253px;">g / 3</div>
             <div id="G#3" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 332px;">h / 4</div>
             <div id="A#3" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 411px;">j / 5</div>
-            <div id="C#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 547px;">7</div>
-            <div id="D#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 618px;">8</div>
+            <div id="C#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 547px;">l / 7</div>
+            <div id="D#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 618px;">; / 8</div>
             <div id="F#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 755px;">0</div>
             <div id="G#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 834px;">-</div>
             <div id="A#4" class="black-key" onmousedown="playKey(this.id)" onmouseup="unplayKey(this.id)" style="margin-left: 913px;">=</div>
@@ -74,7 +74,7 @@
         </div>
     </div>
     <div class="flex-container">
-        <div class="margin-1">GAIN: </div> <div class="range-field" style="width: 10%;"> <input class="margin-1" type="range" min=0 max=6 value=1 step=0.1 oninput="clipGain(this.value)"></div>
+        <div class="margin-1">VOLUME: </div> <div class="range-field" style="width: 10%;"> <input class="margin-1" type="range" min=0 max=6 value=1 step=0.1 oninput="clipGain(this.value)"></div>
         <div class="margin-1">ATTACK: </div> <div class="range-field" style="width: 10%;"> <input class="margin-1" type="range" min=0 max=5 value=1 step=0.1 oninput="clipAttack(this.value)"></div>
         <div class="margin-1">SUSTAIN: </div> <div class="range-field" style="width: 10%;"> <input class="margin-1" type="range" min=0 max=5 value=1 step=0.1 oninput="clipSustain(this.value)"></div>
     </div>
