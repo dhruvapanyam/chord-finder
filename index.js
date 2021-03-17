@@ -4,7 +4,7 @@ var app = express()
 
 const port = process.env.PORT || 4000
 
-var server = app.listen(port,function(){
+app.listen(port,function(){
     console.log('Listening on port',port,'...')
 })
 
