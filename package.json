@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/dhruvapanyam/chord-finder#readme",
   "devDependencies": {
-    "express": "^4.17.1",
+    "express": "*",
     "nodemon": "^2.0.4"
   }
 }
