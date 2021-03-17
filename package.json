@@ -1,0 +1,22 @@
+{
+  "name": "audio-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dhruvapanyam/chord-finder.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dhruvapanyam/chord-finder/issues"
+  },
+  "homepage": "https://github.com/dhruvapanyam/chord-finder#readme",
+  "devDependencies": {
+    "express": "^4.17.1"
+  }
+}
