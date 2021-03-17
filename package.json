@@ -20,5 +20,10 @@
   "devDependencies": {
     "express": "*",
     "nodemon": "^2.0.4"
+  },
+
+  "engines": {
+    "node": ">15.11.0",
+    "npm": ">=7.6.0"
   }
 }
