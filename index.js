@@ -9,7 +9,7 @@ var server = app.listen(port,function(){
 })
 
 
-app.use(express.static('front_end'));
+// app.use(express.static('front_end'));
 
 
 if (process.env.NODE_ENV === "production") {
